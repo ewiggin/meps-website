@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEPS · Make. Engineer. Prototype. Ship.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['DM Serif Display', 'Georgia', 'serif'],
+            mono: ['DM Mono', 'monospace'],
+            sans: ['DM Sans', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            ink: '#1a1a18',
+            muted: '#6b6b65',
+            faint: '#e8e6df',
+            warm: '#f5f3ee',
+            accent: '#2d5a27',
+          },
+          letterSpacing: {
+            widest: '0.2em',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #f5f3ee; }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .letter {
+      display: inline-block;
+      transition: color 0.2s ease;
+    }
+    .letter:hover { color: #2d5a27; }
+
+    .step-line::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: 1px;
+      height: 3rem;
+      background: #c8c5bc;
+      transform: translateX(-50%);
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .cursor {
+      animation: blink 1.2s step-end infinite;
+      color: #2d5a27;
+    }
+
+    hr.ruling {
+      border: none;
+      border-top: 1px solid #c8c5bc;
+    }
+
+    .hero-grid-wrapper {
+      position: relative;
+      overflow: hidden;
+    }
+    #hero-grid {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .project-card {
+      border: 1px solid #d4d1c8;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .project-card:hover {
+      border-color: #2d5a27;
+      background: #fff;
+    }
+
+    ::selection {
+      background: #2d5a27;
+      color: #f5f3ee;
+    }
+  </style>
+</head>
+<body class="font-sans text-ink antialiased">
+
+  <!-- Nav -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-warm/80 backdrop-blur-sm border-b border-faint">
+    <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+      <span class="font-mono text-sm tracking-widest text-ink font-light">MEPS</span>
+      <a href="mailto:hello@meps.software" class="font-mono text-xs text-muted hover:text-accent transition-colors tracking-wide">
+        hello@meps.software
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-grid-wrapper min-h-screen flex flex-col justify-center px-6 pt-14">
+    <canvas id="hero-grid"></canvas>
+    <div class="hero-content max-w-5xl mx-auto w-full">
+
+      <p class="font-mono text-xs tracking-widest text-muted mb-12 fade-in">meps.software</p>
+
+      <h1 class="font-serif text-6xl md:text-8xl lg:text-9xl leading-none mb-10 fade-in" style="transition-delay: 0.1s">
+        <span class="letter">M</span><span class="letter">a</span><span class="letter">k</span><span class="letter">e</span><span class="text-muted">.</span><br />
+        <span class="letter">E</span><span class="letter">n</span><span class="letter">g</span><span class="letter">i</span><span class="letter">n</span><span class="letter">e</span><span class="letter">e</span><span class="letter">r</span><span class="text-muted">.</span><br />
+        <span class="letter">P</span><span class="letter">r</span><span class="letter">o</span><span class="letter">t</span><span class="letter">o</span><span class="letter">t</span><span class="letter">y</span><span class="letter">p</span><span class="letter">e</span><span class="text-muted">.</span><br />
+        <span class="letter">S</span><span class="letter">h</span><span class="letter">i</span><span class="letter">p</span><span class="text-muted">.</span>
+      </h1>
+
+      <div class="max-w-lg fade-in" style="transition-delay: 0.25s">
+        <p class="text-base md:text-lg text-muted font-light leading-relaxed">
+          Software built with care for organisations that care about people.
+          No bloat, no buzzwords — just tools that work.
+        </p>
+      </div>
+
+      <div class="mt-16 fade-in" style="transition-delay: 0.4s">
+        <a href="#projects" class="inline-flex items-center gap-3 font-mono text-xs tracking-widest text-muted hover:text-accent transition-colors">
+          <span>SEE PROJECTS</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M8 3v10M3 8l5 5 5-5"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <hr class="ruling max-w-5xl mx-auto px-6" />
+
+  <!-- Manifesto -->
+  <section class="py-24 px-6">
+    <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+
+      <div class="fade-in">
+        <p class="font-mono text-xs tracking-widest text-muted mb-8">/ APPROACH</p>
+        <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+          Good software doesn't need to announce itself.
+        </h2>
+      </div>
+
+      <div class="fade-in space-y-6 text-muted font-light leading-relaxed" style="transition-delay: 0.15s">
+        <p>
+          I build digital tools for non-profits and mission-driven organisations —
+          the kind of teams that shouldn't need a full IT department to get things done.
+        </p>
+        <p>
+          Every project starts with understanding the real problem, not the assumed one.
+          The result is software that fits the organisation, not the other way around.
+        </p>
+        <p class="font-mono text-xs tracking-wide text-accent">
+          Open to new collaborations →
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="ruling max-w-5xl mx-auto px-6" />
+
+  <!-- Process -->
+  <section class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">/ PROCESS</p>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-faint border border-faint">
+
+        <div class="bg-warm p-8 fade-in">
+          <p class="font-mono text-xs text-muted mb-6">01</p>
+          <p class="font-serif text-2xl mb-4">Make</p>
+          <p class="text-sm text-muted font-light leading-relaxed">Define the problem worth solving. Shape an idea into something real.</p>
+        </div>
+
+        <div class="bg-warm p-8 fade-in" style="transition-delay:0.1s">
+          <p class="font-mono text-xs text-muted mb-6">02</p>
+          <p class="font-serif text-2xl mb-4">Engineer</p>
+          <p class="text-sm text-muted font-light leading-relaxed">Build with intention. Clean code, sensible architecture, no shortcuts.</p>
+        </div>
+
+        <div class="bg-warm p-8 fade-in" style="transition-delay:0.2s">
+          <p class="font-mono text-xs text-muted mb-6">03</p>
+          <p class="font-serif text-2xl mb-4">Prototype</p>
+          <p class="text-sm text-muted font-light leading-relaxed">Test early, adapt fast. Real feedback beats perfect assumptions.</p>
+        </div>
+
+        <div class="bg-warm p-8 fade-in" style="transition-delay:0.3s">
+          <p class="font-mono text-xs text-muted mb-6">04</p>
+          <p class="font-serif text-2xl mb-4">Ship</p>
+          <p class="text-sm text-muted font-light leading-relaxed">Deliver what works. Keep it running. Then improve.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="ruling max-w-5xl mx-auto px-6" />
+
+  <!-- Projects -->
+  <section id="projects" class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">/ PROJECTS</p>
+
+      <div class="space-y-px">
+
+        <div class="project-card bg-warm p-8 flex flex-col md:flex-row md:items-center gap-6 cursor-default fade-in">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="font-serif text-xl">Sensorial</span>
+              <span class="font-mono text-xs text-accent bg-accent/10 px-2 py-0.5 rounded">active</span>
+            </div>
+            <p class="text-sm text-muted font-light leading-relaxed max-w-md">
+              Sensorial evaluation platform for tasting sessions and panelist management. Built for food organisations running in-person assessments.
+            </p>
+          </div>
+          <div class="font-mono text-xs text-muted space-y-1 shrink-0">
+            <p>NestJS · Angular · SQLite</p>
+          </div>
+        </div>
+
+        <div class="project-card bg-warm p-8 flex flex-col md:flex-row md:items-center gap-6 cursor-default fade-in" style="transition-delay:0.1s">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="font-serif text-xl">More coming</span>
+              <span class="font-mono text-xs text-muted bg-faint px-2 py-0.5 rounded">soon</span>
+            </div>
+            <p class="text-sm text-muted font-light leading-relaxed max-w-md">
+              Side projects for non-profits are in the works. If you run an organisation and have a problem worth solving, let's talk.
+            </p>
+          </div>
+          <div class="font-mono text-xs text-muted shrink-0">
+            <span class="cursor">_</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="ruling max-w-5xl mx-auto px-6" />
+
+  <!-- Contact -->
+  <section class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-16 items-end">
+
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">/ CONTACT</p>
+          <h2 class="font-serif text-4xl md:text-5xl leading-tight">
+            Got a problem<br />worth solving?
+          </h2>
+        </div>
+
+        <div class="fade-in space-y-8" style="transition-delay:0.15s">
+          <p class="text-muted font-light leading-relaxed">
+            Whether it's a new project, a question, or just a conversation about software and organisations — reach out.
+          </p>
+          <div>
+            <a href="mailto:hello@meps.software" class="font-mono text-sm text-ink border-b border-ink pb-0.5 hover:text-accent hover:border-accent transition-colors">
+              hello@meps.software
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-faint py-8 px-6">
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <span class="font-mono text-xs text-muted tracking-widest">MEPS · meps.software</span>
+      <span class="font-mono text-xs text-muted">Make. Engineer. Prototype. Ship.</span>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+
+  <script>
+    const canvas = document.getElementById('hero-grid');
+    const ctx = canvas.getContext('2d');
+    const CELL = 48;
+    const ACCENT = [45, 90, 39]; // rgb of #2d5a27
+    const BASE_LINE = 'rgba(180,175,165,0.45)';
+    const DOT = 'rgba(160,155,145,0.6)';
+
+    let cols, rows, cells, mouse = { x: -9999, y: -9999 };
+
+    function resize() {
+      const section = canvas.parentElement;
+      canvas.width = section.offsetWidth;
+      canvas.height = section.offsetHeight;
+      cols = Math.ceil(canvas.width / CELL) + 1;
+      rows = Math.ceil(canvas.height / CELL) + 1;
+      cells = Array.from({ length: cols * rows }, () => ({ glow: 0 }));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const mx = mouse.x;
+      const my = mouse.y;
+
+      // Update glow per cell
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cx = c * CELL;
+          const cy = r * CELL;
+          const dx = mx - cx;
+          const dy = my - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const radius = CELL * 3.5;
+          const target = dist < radius ? Math.pow(1 - dist / radius, 2) : 0;
+          const cell = cells[r * cols + c];
+          cell.glow += (target - cell.glow) * 0.12;
+        }
+      }
+
+      // Draw vertical lines
+      for (let c = 0; c < cols; c++) {
+        ctx.beginPath();
+        ctx.moveTo(c * CELL, 0);
+        ctx.lineTo(c * CELL, canvas.height);
+        ctx.strokeStyle = BASE_LINE;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+
+      // Draw horizontal lines
+      for (let r = 0; r < rows; r++) {
+        ctx.beginPath();
+        ctx.moveTo(0, r * CELL);
+        ctx.lineTo(canvas.width, r * CELL);
+        ctx.strokeStyle = BASE_LINE;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+
+      // Draw glowing cells
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cell = cells[r * cols + c];
+          if (cell.glow > 0.005) {
+            const alpha = cell.glow * 0.18;
+            ctx.fillStyle = `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},${alpha})`;
+            ctx.fillRect(c * CELL + 0.5, r * CELL + 0.5, CELL - 1, CELL - 1);
+          }
+        }
+      }
+
+      // Draw dots at intersections
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cell = cells[r * cols + c];
+          const dotAlpha = 0.5 + cell.glow * 0.5;
+          const dotColor = cell.glow > 0.05
+            ? `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},${Math.min(dotAlpha, 1)})`
+            : DOT;
+          ctx.beginPath();
+          ctx.arc(c * CELL, r * CELL, 1, 0, Math.PI * 2);
+          ctx.fillStyle = dotColor;
+          ctx.fill();
+        }
+      }
+
+      // Fade bottom with gradient
+      const grad = ctx.createLinearGradient(0, canvas.height * 0.6, 0, canvas.height);
+      grad.addColorStop(0, 'rgba(245,243,238,0)');
+      grad.addColorStop(1, 'rgba(245,243,238,1)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      requestAnimationFrame(draw);
+    }
+
+    canvas.parentElement.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    });
+
+    canvas.parentElement.addEventListener('mouseleave', () => {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+  </script>
+</body>
+</html>
