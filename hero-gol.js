@@ -3,7 +3,13 @@
   const ctx = canvas.getContext('2d');
 
   const CELL = 48;
-  const ACCENT = [45, 90, 39];
+  const ACCENTS = [
+    [194, 65, 12],   // Make — orange
+    [124, 58, 237],  // Everything — violet
+    [3, 105, 161],   // Possible — blue
+    [45, 90, 39],    // with Software — green
+  ];
+  const ACCENT = ACCENTS[Math.floor(Math.random() * ACCENTS.length)];
   const BASE_LINE = 'rgba(180,175,165,0.45)';
   const DOT = 'rgba(160,155,145,0.6)';
   const GOL_INTERVAL = 120; // ms between generations
