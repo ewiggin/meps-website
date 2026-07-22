@@ -136,12 +136,23 @@
     requestAnimationFrame(draw);
   }
 
-  canvas.parentElement.addEventListener('click', (e) => {
+  let isPainting = false;
+  let paintCell = { r: -1, c: -1 };
+
+  function cellAt(e) {
     const rect = canvas.getBoundingClientRect();
-    const c = Math.floor((e.clientX - rect.left) / CELL);
-    const r = Math.floor((e.clientY - rect.top) / CELL);
+    return {
+      c: Math.floor((e.clientX - rect.left) / CELL),
+      r: Math.floor((e.clientY - rect.top) / CELL),
+    };
+  }
+
+  canvas.parentElement.addEventListener('mousedown', (e) => {
+    const { r, c } = cellAt(e);
     if (r >= 0 && r < rows && c >= 0 && c < cols) {
+      isPainting = true;
       grid[r * cols + c] ^= 1;
+      paintCell = { r, c };
     }
   });
 
@@ -149,7 +160,17 @@
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
+
+    if (!isPainting) return;
+    const { r, c } = cellAt(e);
+    if (r === paintCell.r && c === paintCell.c) return;
+    if (r >= 0 && r < rows && c >= 0 && c < cols) {
+      grid[r * cols + c] = 1;
+      paintCell = { r, c };
+    }
   });
+
+  window.addEventListener('mouseup', () => { isPainting = false; });
 
   canvas.parentElement.addEventListener('mouseleave', () => {
     mouse.x = -9999;
