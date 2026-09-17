@@ -178,7 +178,7 @@
           ><span style="color: #2d5a27">S</span></span
         >
         <a
-          href="es/index.html"
+          href="/es/"
           hreflang="es"
           class="font-mono text-xs tracking-widest text-muted hover:text-accent transition-colors"
           >ES</a
@@ -454,7 +454,9 @@
 
     <!-- Projects -->
     <section id="projects" class="py-24 px-6">
-      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start mb-16">
+      <div
+        class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start mb-16"
+      >
         <div class="fade-in">
           <p class="font-mono text-xs tracking-widest text-muted mb-8">
             / PROJECTS
@@ -535,14 +537,61 @@
               Whether it's a new project, a question, or just a conversation
               about software and organisations — reach out.
             </p>
-            <div>
-              <a
-                href="mailto:hello@meps.software"
-                class="font-mono text-sm text-ink border-b border-ink pb-0.5 hover:text-accent hover:border-accent transition-colors"
+
+            <form id="contact-form" class="space-y-4 pt-4">
+              <input
+                type="text"
+                name="name"
+                placeholder="Name"
+                required
+                class="w-full bg-transparent border-b border-faint focus:border-ink outline-none py-2 font-mono text-sm placeholder:text-muted transition-colors"
+              />
+              <input
+                type="text"
+                name="job"
+                placeholder="Job / Role"
+                required
+                class="w-full bg-transparent border-b border-faint focus:border-ink outline-none py-2 font-mono text-sm placeholder:text-muted transition-colors"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                required
+                class="w-full bg-transparent border-b border-faint focus:border-ink outline-none py-2 font-mono text-sm placeholder:text-muted transition-colors"
+              />
+              <label
+                class="flex items-start gap-3 font-mono text-xs text-muted leading-relaxed"
               >
-                hello@meps.software
-              </a>
-            </div>
+                <input
+                  type="checkbox"
+                  name="consent"
+                  required
+                  class="mt-0.5 accent-ink"
+                />
+                <span>
+                  I agree that MEPS may store and use my data to get in touch
+                  with me, as described in the
+                  <a
+                    href="/privacy/"
+                    target="_blank"
+                    class="text-ink border-b border-ink hover:text-accent hover:border-accent transition-colors"
+                    >privacy policy</a
+                  >.
+                </span>
+              </label>
+              <button
+                type="submit"
+                class="font-mono text-xs tracking-widest text-ink border border-ink px-5 py-2 hover:bg-ink hover:text-warm transition-colors"
+              >
+                SEND
+              </button>
+              <p
+                id="contact-form-status"
+                class="font-mono text-xs text-muted"
+                aria-live="polite"
+              ></p>
+            </form>
           </div>
         </div>
       </div>
@@ -557,8 +606,7 @@
           ><span style="color: #c2410c">M</span
           ><span style="color: #7c3aed">E</span
           ><span style="color: #0369a1">P</span
-          ><span style="color: #2d5a27">S</span> ·
-          meps.software</span
+          ><span style="color: #2d5a27">S</span> · meps.software</span
         >
         <span class="font-mono text-xs text-muted"
           >Make Everything Possible with Software.</span
@@ -584,6 +632,37 @@
       document
         .querySelectorAll(".fade-in")
         .forEach((el) => observer.observe(el));
+    </script>
+
+    <script>
+      const CONTACT_API_URL = "https://round-scallop-9355.bosoft.deno.net/";
+      const contactForm = document.getElementById("contact-form");
+      const contactStatus = document.getElementById("contact-form-status");
+
+      contactForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const submitButton = contactForm.querySelector("button[type=submit]");
+        const data = Object.fromEntries(new FormData(contactForm).entries());
+
+        submitButton.disabled = true;
+        contactStatus.textContent = "Sending…";
+
+        try {
+          const res = await fetch(CONTACT_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          if (!res.ok) throw new Error("Request failed");
+          contactForm.reset();
+          contactStatus.textContent = "Thanks — we'll be in touch.";
+        } catch {
+          contactStatus.textContent =
+            "Something went wrong. Please try again or email us directly.";
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
     </script>
 
     <script src="hero-gol.js"></script>

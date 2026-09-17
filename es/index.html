@@ -178,7 +178,7 @@
           ><span style="color: #2d5a27">S</span></span
         >
         <a
-          href="../index.html"
+          href="/"
           hreflang="en"
           class="font-mono text-xs tracking-widest text-muted hover:text-accent transition-colors"
           >EN</a
@@ -545,14 +545,61 @@
               Ya sea un proyecto nuevo, una pregunta, o simplemente una
               conversación sobre software y organizaciones — escríbenos.
             </p>
-            <div>
-              <a
-                href="mailto:hello@meps.software"
-                class="font-mono text-sm text-ink border-b border-ink pb-0.5 hover:text-accent hover:border-accent transition-colors"
+
+            <form id="contact-form" class="space-y-4 pt-4">
+              <input
+                type="text"
+                name="name"
+                placeholder="Nombre"
+                required
+                class="w-full bg-transparent border-b border-faint focus:border-ink outline-none py-2 font-mono text-sm placeholder:text-muted transition-colors"
+              />
+              <input
+                type="text"
+                name="job"
+                placeholder="Puesto / Rol"
+                required
+                class="w-full bg-transparent border-b border-faint focus:border-ink outline-none py-2 font-mono text-sm placeholder:text-muted transition-colors"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                required
+                class="w-full bg-transparent border-b border-faint focus:border-ink outline-none py-2 font-mono text-sm placeholder:text-muted transition-colors"
+              />
+              <label
+                class="flex items-start gap-3 font-mono text-xs text-muted leading-relaxed"
               >
-                hello@meps.software
-              </a>
-            </div>
+                <input
+                  type="checkbox"
+                  name="consent"
+                  required
+                  class="mt-0.5 accent-ink"
+                />
+                <span>
+                  Acepto que MEPS almacene y use mis datos para ponerse en
+                  contacto conmigo, tal y como se describe en la
+                  <a
+                    href="/es/privacidad/"
+                    target="_blank"
+                    class="text-ink border-b border-ink hover:text-accent hover:border-accent transition-colors"
+                    >política de privacidad</a
+                  >.
+                </span>
+              </label>
+              <button
+                type="submit"
+                class="font-mono text-xs tracking-widest text-ink border border-ink px-5 py-2 hover:bg-ink hover:text-warm transition-colors"
+              >
+                ENVIAR
+              </button>
+              <p
+                id="contact-form-status"
+                class="font-mono text-xs text-muted"
+                aria-live="polite"
+              ></p>
+            </form>
           </div>
         </div>
       </div>
@@ -593,6 +640,37 @@
       document
         .querySelectorAll(".fade-in")
         .forEach((el) => observer.observe(el));
+    </script>
+
+    <script>
+      const CONTACT_API_URL = "https://round-scallop-9355.bosoft.deno.net/";
+      const contactForm = document.getElementById("contact-form");
+      const contactStatus = document.getElementById("contact-form-status");
+
+      contactForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const submitButton = contactForm.querySelector("button[type=submit]");
+        const data = Object.fromEntries(new FormData(contactForm).entries());
+
+        submitButton.disabled = true;
+        contactStatus.textContent = "Enviando…";
+
+        try {
+          const res = await fetch(CONTACT_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          if (!res.ok) throw new Error("Request failed");
+          contactForm.reset();
+          contactStatus.textContent = "Gracias — nos pondremos en contacto.";
+        } catch {
+          contactStatus.textContent =
+            "Algo salió mal. Inténtalo de nuevo o escríbenos directamente.";
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
     </script>
 
     <script src="../hero-gol.js"></script>
