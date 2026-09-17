@@ -4,6 +4,7 @@ class ProjectCard extends HTMLElement {
     const description = this.getAttribute('description') || '';
     const stack       = this.getAttribute('stack') || '';
     const status      = this.getAttribute('status') || 'soon';
+    const label       = this.getAttribute('label') || status;
     const delay       = this.getAttribute('delay') || '0s';
     const color       = this.getAttribute('color') || '#2d5a27';
 
@@ -22,7 +23,7 @@ class ProjectCard extends HTMLElement {
         <div class="flex items-center justify-between mb-6">
           <canvas class="gol-avatar shrink-0" width="40" height="40"
                   style="display:block;border-radius:6px;"></canvas>
-          <span class="font-mono text-xs ${badgeClass} px-2 py-0.5 rounded" style="${badgeStyle}">${status}</span>
+          <span class="font-mono text-xs ${badgeClass} px-2 py-0.5 rounded" style="${badgeStyle}">${label}</span>
         </div>
         <p class="font-serif text-2xl mb-4 infra-title" style="color:${color}">${name}</p>
         <p class="text-sm text-muted font-light leading-relaxed">${description}</p>
