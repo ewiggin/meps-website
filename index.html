@@ -85,8 +85,10 @@
         display: inline-block;
         cursor: default;
       }
-      .word-group:hover .word {
+      .word-group .word {
         color: #2d5a27;
+      }
+      .word-group:hover .word {
         text-shadow:
           0 0 80px rgba(45, 90, 39, 0.22),
           0 0 30px rgba(45, 90, 39, 0.18);
@@ -137,15 +139,17 @@
         z-index: 1;
       }
 
-      .project-card {
-        border: 1px solid #d4d1c8;
+      .infra-card {
         transition:
-          border-color 0.2s ease,
-          background 0.2s ease;
+          background 0.25s ease,
+          transform 0.25s ease;
       }
-      .project-card:hover {
-        border-color: #2d5a27;
+      .infra-card:hover {
         background: #fff;
+        transform: translateY(-2px);
+      }
+      .infra-card:hover .infra-title {
+        text-shadow: 0 0 40px currentColor;
       }
 
       ::selection {
@@ -155,6 +159,7 @@
 
       project-card {
         display: block;
+        height: 100%;
       }
     </style>
   </head>
@@ -166,8 +171,11 @@
       <div
         class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between"
       >
-        <span class="font-mono text-sm tracking-widest text-ink font-light"
-          >MEPS</span
+        <span class="font-mono text-sm tracking-widest font-light"
+          ><span style="color: #c2410c">M</span
+          ><span style="color: #7c3aed">E</span
+          ><span style="color: #0369a1">P</span
+          ><span style="color: #2d5a27">S</span></span
         >
       </div>
     </nav>
@@ -267,41 +275,171 @@
         <div
           class="grid grid-cols-2 md:grid-cols-4 gap-px bg-faint border border-faint"
         >
-          <div class="bg-warm p-8 fade-in">
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="border-top: 2px solid #c2410c"
+          >
             <p class="font-mono text-xs text-muted mb-6">01</p>
-            <p class="font-serif text-2xl mb-4">Make</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #c2410c"
+            >
+              Make
+            </p>
             <p class="text-sm text-muted font-light leading-relaxed">
               Start with what's truly possible. Understand the real problem
               before reaching for a solution.
             </p>
           </div>
 
-          <div class="bg-warm p-8 fade-in" style="transition-delay: 0.1s">
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.1s; border-top: 2px solid #7c3aed"
+          >
             <p class="font-mono text-xs text-muted mb-6">02</p>
-            <p class="font-serif text-2xl mb-4">Engineer</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #7c3aed"
+            >
+              Engineer
+            </p>
             <p class="text-sm text-muted font-light leading-relaxed">
               Build with intention. Architecture that can grow, code that can
               last.
             </p>
           </div>
 
-          <div class="bg-warm p-8 fade-in" style="transition-delay: 0.2s">
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.2s; border-top: 2px solid #0369a1"
+          >
             <p class="font-mono text-xs text-muted mb-6">03</p>
-            <p class="font-serif text-2xl mb-4">Prototype</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #0369a1"
+            >
+              Prototype
+            </p>
             <p class="text-sm text-muted font-light leading-relaxed">
               Test assumptions early, adapt fast. Real feedback turns the
               possible into the certain.
             </p>
           </div>
 
-          <div class="bg-warm p-8 fade-in" style="transition-delay: 0.3s">
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.3s; border-top: 2px solid #2d5a27"
+          >
             <p class="font-mono text-xs text-muted mb-6">04</p>
-            <p class="font-serif text-2xl mb-4">Ship</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #2d5a27"
+            >
+              Ship
+            </p>
             <p class="text-sm text-muted font-light leading-relaxed">
               Deliver what matters. Then push further — because the first
               version is never the last.
             </p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Infrastructure -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / INFRASTRUCTURE
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+            We build it. We keep it live.
+          </h2>
+        </div>
+
+        <div
+          class="fade-in space-y-6 text-muted font-light leading-relaxed"
+          style="transition-delay: 0.15s"
+        >
+          <p>
+            Every project we ship runs on infrastructure spread across the globe
+            — fast wherever your users are, resilient when things go wrong.
+          </p>
+          <p>
+            No server to babysit, no renewals to chase. We handle deployment,
+            monitoring, backups and scaling, so your software stays online while
+            you focus on your organisation.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="max-w-5xl mx-auto mt-16 grid grid-cols-2 md:grid-cols-4 gap-px bg-faint border border-faint"
+      >
+        <div
+          class="infra-card bg-warm p-8 fade-in"
+          style="border-top: 2px solid #c2410c"
+        >
+          <p
+            class="font-serif text-2xl mb-4 infra-title"
+            style="color: #c2410c"
+          >
+            Global
+          </p>
+          <p class="text-sm text-muted font-light leading-relaxed">
+            Servers distributed across regions, so your app loads fast —
+            wherever your team or your users are.
+          </p>
+        </div>
+
+        <div
+          class="infra-card bg-warm p-8 fade-in"
+          style="transition-delay: 0.1s; border-top: 2px solid #7c3aed"
+        >
+          <p
+            class="font-serif text-2xl mb-4 infra-title"
+            style="color: #7c3aed"
+          >
+            Resilient
+          </p>
+          <p class="text-sm text-muted font-light leading-relaxed">
+            Redundancy by design. If one node goes down, your software doesn't.
+          </p>
+        </div>
+
+        <div
+          class="infra-card bg-warm p-8 fade-in"
+          style="transition-delay: 0.2s; border-top: 2px solid #0369a1"
+        >
+          <p
+            class="font-serif text-2xl mb-4 infra-title"
+            style="color: #0369a1"
+          >
+            Watched
+          </p>
+          <p class="text-sm text-muted font-light leading-relaxed">
+            Continuous monitoring and automatic backups, so problems get caught
+            before you notice them.
+          </p>
+        </div>
+
+        <div
+          class="infra-card bg-warm p-8 fade-in"
+          style="transition-delay: 0.3s; border-top: 2px solid #2d5a27"
+        >
+          <p
+            class="font-serif text-2xl mb-4 infra-title"
+            style="color: #2d5a27"
+          >
+            Scalable
+          </p>
+          <p class="text-sm text-muted font-light leading-relaxed">
+            Infrastructure that grows with your organisation — from a pilot to a
+            full rollout.
+          </p>
         </div>
       </div>
     </section>
@@ -315,18 +453,26 @@
           / PROJECTS
         </p>
 
-        <div class="space-y-px">
+        <div
+          class="grid grid-cols-2 md:grid-cols-4 gap-px bg-faint border border-faint"
+        >
           <project-card
             name="Roller"
             status="active"
-            stack="NestJS · Angular · SQLite · Tauri"
             description="Big events organization platform with volunteer management. Management of shifts and activities for special campaigns."
+            color="#c2410c"
           ></project-card>
           <project-card
             name="Sensorial"
             status="active"
-            stack="NestJS · Angular · SQLite"
             description="Sensorial evaluation platform for tasting sessions and panelist management. Built for food organisations running in-person assessments."
+            color="#7c3aed"
+          ></project-card>
+          <project-card
+            name="Coverbook"
+            status="active"
+            description="Free webapp to design and generate custom covers for your personal library, ready to print."
+            color="#0369a1"
           ></project-card>
 
           <project-card
@@ -334,6 +480,7 @@
             status="soon"
             description="Side projects for non-profits are in the works. If you run an organisation and have a problem worth solving, let's talk."
             delay="0.1s"
+            color="#2d5a27"
           ></project-card>
         </div>
       </div>
@@ -378,7 +525,11 @@
         class="max-w-5xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
       >
         <span class="font-mono text-xs text-muted tracking-widest"
-          >MEPS · meps.software</span
+          ><span style="color: #c2410c">M</span
+          ><span style="color: #7c3aed">E</span
+          ><span style="color: #0369a1">P</span
+          ><span style="color: #2d5a27">S</span> ·
+          meps.software</span
         >
         <span class="font-mono text-xs text-muted"
           >Make Everything Possible with Software.</span
