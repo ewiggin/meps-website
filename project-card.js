@@ -7,18 +7,22 @@ class ProjectCard extends HTMLElement {
     const label       = this.getAttribute('label') || status;
     const delay       = this.getAttribute('delay') || '0s';
     const color       = this.getAttribute('color') || '#2d5a27';
+    const href        = this.getAttribute('href');
 
     const isActive   = status === 'active';
     const badgeClass = isActive ? '' : 'text-muted bg-faint';
     const badgeStyle = isActive ? `color:${color};background:${hexToRgba(color, 0.1)}` : '';
+    const tag        = href ? 'a' : 'div';
     const footer     = stack
       ? `<p class="font-mono text-xs text-muted pt-4">${stack}</p>`
-      : isActive
+      : href
+        ? `<p class="font-mono text-xs pt-4" style="color:${color}">→</p>`
+        : isActive
         ? ''
         : `<p class="font-mono text-xs pt-4"><span class="cursor">_</span></p>`;
 
     this.innerHTML = `
-      <div class="infra-card project-card bg-warm p-8 h-full flex flex-col cursor-default fade-in"
+      <${tag} ${href ? `href="${href}"` : ''} class="infra-card project-card bg-warm p-8 h-full flex flex-col ${href ? 'cursor-pointer' : 'cursor-default'} fade-in"
            style="transition-delay:${delay};border-top:2px solid ${color};--pc:${color}">
         <div class="flex items-center justify-between mb-6">
           <canvas class="gol-avatar shrink-0" width="40" height="40"
@@ -28,7 +32,7 @@ class ProjectCard extends HTMLElement {
         <p class="font-serif text-2xl mb-4 infra-title" style="color:${color}">${name}</p>
         <p class="text-sm text-muted font-light leading-relaxed">${description}</p>
         <div class="mt-auto">${footer}</div>
-      </div>
+      </${tag}>
     `;
 
     this._accentRgb = hexToRgb(color);

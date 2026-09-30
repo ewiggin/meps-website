@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coverbook · Print-ready book covers · MEPS</title>
+    <meta
+      name="description"
+      content="Free web app to design print-ready book covers for Amazon KDP, IngramSpark or any printer: exact spine, bleed and barcode, checked before you upload."
+    />
+    <link rel="alternate" hreflang="es" href="/es/coverbook/" />
+    <link rel="icon" href="../favicon.ico" sizes="32x32" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ["DM Serif Display", "Georgia", "serif"],
+              mono: ["DM Mono", "monospace"],
+              sans: ["DM Sans", "system-ui", "sans-serif"],
+            },
+            colors: {
+              ink: "#1a1a18",
+              muted: "#6b6b65",
+              faint: "#e8e6df",
+              warm: "#f5f3ee",
+              accent: "#0369a1",
+            },
+            letterSpacing: {
+              widest: "0.2em",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: #f5f3ee;
+      }
+
+      .fade-in {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      hr.ruling {
+        border: none;
+        border-top: 1px solid #c8c5bc;
+      }
+
+      .infra-card {
+        transition:
+          background 0.25s ease,
+          transform 0.25s ease;
+      }
+      .infra-card:hover {
+        background: #fff;
+        transform: translateY(-2px);
+      }
+      .infra-card:hover .infra-title {
+        text-shadow: 0 0 40px currentColor;
+      }
+
+      ::selection {
+        background: #0369a1;
+        color: #f5f3ee;
+      }
+
+      /* Cover diagram: guides draw in once visible */
+      .guide {
+        stroke-dasharray: 2000;
+        stroke-dashoffset: 2000;
+        transition: stroke-dashoffset 1.6s ease;
+      }
+      .guide.dashed {
+        stroke-dasharray: 6 5;
+        stroke-dashoffset: 0;
+        opacity: 0;
+        transition: opacity 0.8s ease;
+      }
+      .visible .guide {
+        stroke-dashoffset: 0;
+      }
+      .visible .guide.dashed {
+        opacity: 1;
+      }
+      .visible .guide.d1 {
+        transition-delay: 0.4s;
+      }
+      .visible .guide.d2 {
+        transition-delay: 0.9s;
+      }
+      .visible .guide.d3 {
+        transition-delay: 1.3s;
+      }
+
+      .check-row {
+        opacity: 0;
+        transform: translateX(-8px);
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s ease;
+      }
+      .visible .check-row {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    </style>
+  </head>
+  <body class="font-sans text-ink antialiased">
+    <!-- Nav -->
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 bg-warm/80 backdrop-blur-sm border-b border-faint"
+    >
+      <div
+        class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between"
+      >
+        <span class="font-mono text-sm tracking-widest font-light">
+          <a href="/"
+            ><span style="color: #c2410c">M</span
+            ><span style="color: #7c3aed">E</span
+            ><span style="color: #0369a1">P</span
+            ><span style="color: #2d5a27">S</span></a
+          ><span class="text-muted"> / </span
+          ><span class="text-accent">COVERBOOK</span>
+        </span>
+        <a
+          href="/es/coverbook/"
+          hreflang="es"
+          class="font-mono text-xs tracking-widest text-muted hover:text-accent transition-colors"
+          >ES</a
+        >
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="min-h-screen flex flex-col justify-center px-6 pt-24 pb-16">
+      <div
+        class="max-w-5xl mx-auto w-full grid lg:grid-cols-5 gap-12 lg:gap-16 items-center"
+      >
+        <div class="lg:col-span-2">
+          <p
+            class="font-mono text-xs tracking-widest text-muted mb-8 fade-in"
+          >
+            / PRODUCT · FREE WEB APP
+          </p>
+          <h1
+            class="font-serif text-5xl md:text-7xl leading-none mb-8 fade-in"
+            style="transition-delay: 0.1s"
+          >
+            Cover<span class="text-accent">book</span><span class="text-muted"
+              >.</span
+            >
+          </h1>
+          <p
+            class="text-base md:text-lg text-muted font-light leading-relaxed fade-in"
+            style="transition-delay: 0.2s"
+          >
+            Print-ready book covers for Amazon KDP and IngramSpark: exact spine,
+            bleed and barcode, checked before you upload.
+          </p>
+          <div
+            class="mt-10 flex flex-wrap items-center gap-6 fade-in"
+            style="transition-delay: 0.3s"
+          >
+            <a
+              href="https://coverbook.meps.software/editor"
+              class="font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+              >OPEN THE EDITOR →</a
+            >
+            <a
+              href="#how"
+              class="inline-flex items-center gap-3 font-mono text-xs tracking-widest text-muted hover:text-accent transition-colors"
+            >
+              <span>HOW IT WORKS</span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M8 3v10M3 8l5 5 5-5" />
+              </svg>
+            </a>
+          </div>
+          <p
+            class="mt-6 font-mono text-xs text-muted fade-in"
+            style="transition-delay: 0.35s"
+          >
+            No sign-up · Runs in your browser · EN / ES
+          </p>
+        </div>
+
+        <!-- Cover diagram -->
+        <figure class="lg:col-span-3 fade-in" style="transition-delay: 0.25s">
+          <svg
+            viewBox="0 0 660 440"
+            class="w-full h-auto"
+            role="img"
+            aria-label="Full paperback cover laid flat: back cover, spine and front cover, with bleed, trim line, safe zones and barcode area"
+          >
+            <!-- Panel labels -->
+            <g
+              font-family="DM Mono, monospace"
+              font-size="10"
+              letter-spacing="2"
+              fill="#6b6b65"
+              text-anchor="middle"
+            >
+              <text x="166" y="16">BACK COVER</text>
+              <text x="330" y="16">SPINE</text>
+              <text x="494" y="16">FRONT COVER</text>
+            </g>
+
+            <!-- Artwork (extends into the bleed) -->
+            <defs>
+              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#0c2d48" />
+                <stop offset="1" stop-color="#0369a1" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="26" width="660" height="414" fill="url(#sky)" />
+            <circle cx="494" cy="250" r="64" fill="#c2410c" opacity="0.9" />
+            <path
+              d="M0 350 C 120 320, 220 380, 330 350 S 540 320, 660 345 L 660 440 L 0 440 Z"
+              fill="#0c2d48"
+              opacity="0.85"
+            />
+
+            <!-- Front text -->
+            <text
+              x="494"
+              y="110"
+              text-anchor="middle"
+              font-family="DM Serif Display, Georgia, serif"
+              font-size="34"
+              fill="#f5f3ee"
+            >
+              The Quiet
+            </text>
+            <text
+              x="494"
+              y="148"
+              text-anchor="middle"
+              font-family="DM Serif Display, Georgia, serif"
+              font-size="34"
+              fill="#f5f3ee"
+            >
+              Harbour
+            </text>
+            <text
+              x="494"
+              y="392"
+              text-anchor="middle"
+              font-family="DM Mono, monospace"
+              font-size="11"
+              letter-spacing="3"
+              fill="#f5f3ee"
+            >
+              A. N. AUTHOR
+            </text>
+
+            <!-- Spine text -->
+            <text
+              transform="translate(335 233) rotate(90)"
+              text-anchor="middle"
+              font-family="DM Mono, monospace"
+              font-size="10"
+              letter-spacing="3"
+              fill="#f5f3ee"
+            >
+              THE QUIET HARBOUR
+            </text>
+
+            <!-- Back blurb -->
+            <g fill="#f5f3ee" opacity="0.55">
+              <rect x="56" y="80" width="200" height="5" rx="2" />
+              <rect x="56" y="94" width="220" height="5" rx="2" />
+              <rect x="56" y="108" width="190" height="5" rx="2" />
+              <rect x="56" y="122" width="210" height="5" rx="2" />
+              <rect x="56" y="136" width="140" height="5" rx="2" />
+            </g>
+
+            <!-- Barcode -->
+            <g>
+              <rect x="196" y="316" width="96" height="58" fill="#fff" />
+              <g fill="#1a1a18">
+                <rect x="204" y="322" width="2" height="38" />
+                <rect x="208" y="322" width="1" height="38" />
+                <rect x="212" y="322" width="3" height="38" />
+                <rect x="217" y="322" width="1" height="38" />
+                <rect x="220" y="322" width="2" height="38" />
+                <rect x="225" y="322" width="1" height="38" />
+                <rect x="228" y="322" width="3" height="38" />
+                <rect x="233" y="322" width="2" height="38" />
+                <rect x="237" y="322" width="1" height="38" />
+                <rect x="240" y="322" width="2" height="38" />
+                <rect x="245" y="322" width="3" height="38" />
+                <rect x="250" y="322" width="1" height="38" />
+                <rect x="253" y="322" width="2" height="38" />
+                <rect x="258" y="322" width="1" height="38" />
+                <rect x="261" y="322" width="3" height="38" />
+                <rect x="266" y="322" width="2" height="38" />
+                <rect x="270" y="322" width="1" height="38" />
+                <rect x="273" y="322" width="2" height="38" />
+                <rect x="278" y="322" width="3" height="38" />
+                <rect x="283" y="322" width="2" height="38" />
+              </g>
+              <text
+                x="244"
+                y="370"
+                text-anchor="middle"
+                font-family="DM Mono, monospace"
+                font-size="7"
+                fill="#1a1a18"
+              >
+                978-0-000000-00-0
+              </text>
+            </g>
+
+            <!-- Guides -->
+            <!-- Trim (red) -->
+            <rect
+              class="guide"
+              x="14"
+              y="40"
+              width="632"
+              height="386"
+              fill="none"
+              stroke="#ef4444"
+              stroke-width="1.5"
+            />
+            <!-- Folds -->
+            <line
+              class="guide dashed d1"
+              x1="312"
+              y1="26"
+              x2="312"
+              y2="440"
+              stroke="#f5f3ee"
+              stroke-width="1"
+            />
+            <line
+              class="guide dashed d1"
+              x1="348"
+              y1="26"
+              x2="348"
+              y2="440"
+              stroke="#f5f3ee"
+              stroke-width="1"
+            />
+            <!-- Safe zones (green) -->
+            <g
+              fill="none"
+              stroke="#4ade80"
+              stroke-width="1.25"
+              class="safe"
+            >
+              <rect class="guide dashed d2" x="34" y="60" width="258" height="346" />
+              <rect class="guide dashed d2" x="319" y="60" width="22" height="346" />
+              <rect class="guide dashed d2" x="368" y="60" width="258" height="346" />
+            </g>
+            <!-- Barcode zone -->
+            <rect
+              class="guide dashed d3"
+              x="190"
+              y="310"
+              width="108"
+              height="70"
+              fill="none"
+              stroke="#facc15"
+              stroke-width="1.25"
+            />
+          </svg>
+          <figcaption
+            class="mt-4 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-muted"
+          >
+            <span class="inline-flex items-center gap-2"
+              ><span class="inline-block w-4 h-px" style="background: #ef4444"></span
+              >trim</span
+            >
+            <span class="inline-flex items-center gap-2"
+              ><span
+                class="inline-block w-4 border-t border-dashed"
+                style="border-color: #16a34a"
+              ></span
+              >safe zone</span
+            >
+            <span class="inline-flex items-center gap-2"
+              ><span
+                class="inline-block w-4 border-t border-dashed"
+                style="border-color: #ca8a04"
+              ></span
+              >barcode area</span
+            >
+            <span class="inline-flex items-center gap-2"
+              ><span
+                class="inline-block w-4 border-t border-dashed border-muted"
+              ></span
+              >spine folds</span
+            >
+            <span>outside the red line = bleed</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Problem -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / WHY
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+            A cover is not a picture. It's a print file with rules.
+          </h2>
+        </div>
+
+        <div
+          class="fade-in space-y-6 text-muted font-light leading-relaxed"
+          style="transition-delay: 0.15s"
+        >
+          <p>
+            Spine width depends on page count and paper. Bleed has to reach past
+            the trim. The barcode needs its own clear area, and text too close
+            to an edge gets cut or folded. Get one of those wrong and the
+            printer rejects the file — or worse, prints it.
+          </p>
+          <p>
+            Coverbook does the maths for you. You design on a canvas that
+            already knows your book's exact dimensions, and the app tells you
+            what's wrong before you upload anything.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Printers -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / WHERE WILL YOU PRINT IT?
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+              One editor, the specs of each printer.
+            </h2>
+          </div>
+          <p
+            class="fade-in text-muted font-light leading-relaxed"
+            style="transition-delay: 0.15s"
+          >
+            Pick your printer first. Coverbook sets up the canvas, the guides
+            and the output PDF the way that printer expects them.
+          </p>
+        </div>
+
+        <div
+          class="grid md:grid-cols-3 gap-px bg-faint border border-faint"
+        >
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="border-top: 2px solid #c2410c"
+          >
+            <p class="font-mono text-xs text-muted mb-6">01</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #c2410c"
+            >
+              Amazon KDP
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Trim sizes, spine, bleed (0.125") and barcode area follow KDP's
+              specifications. Choose your paper and page count; the PDF comes
+              out with no crop marks, as Amazon requires.
+            </p>
+          </div>
+
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.1s; border-top: 2px solid #7c3aed"
+          >
+            <p class="font-mono text-xs text-muted mb-6">02</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #7c3aed"
+            >
+              IngramSpark
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Upload your book's official cover template. Coverbook reads the
+              exact spine and your ISBN barcode from it, and exports in CMYK and
+              PDF/X-1a, as IngramSpark requires.
+            </p>
+          </div>
+
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.2s; border-top: 2px solid #2d5a27"
+          >
+            <p class="font-mono text-xs text-muted mb-6">03</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #2d5a27"
+            >
+              Any other printer
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Standard European sizes or a custom size in millimetres. Add flaps
+              — extra width that folds inward to hold the book without glue —
+              for a local print shop or a cover for your own library.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- How it works -->
+    <section id="how" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">
+          / HOW IT WORKS
+        </p>
+
+        <ol class="grid md:grid-cols-4 gap-12 md:gap-8">
+          <li class="fade-in">
+            <p class="font-mono text-xs text-accent mb-4">STEP 01</p>
+            <p class="font-serif text-2xl mb-3">Choose the printer</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              KDP, IngramSpark or any other. That decides the rules the rest of
+              the app follows.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.1s">
+            <p class="font-mono text-xs text-accent mb-4">STEP 02</p>
+            <p class="font-serif text-2xl mb-3">Set the book</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Trim size, paper and page count — or upload the IngramSpark
+              template and let it fill everything in.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.2s">
+            <p class="font-mono text-xs text-accent mb-4">STEP 03</p>
+            <p class="font-serif text-2xl mb-3">Design</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Add text, images and shapes across back, spine and front. Keep
+              text inside the green lines; the red line is the final trim.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.3s">
+            <p class="font-mono text-xs text-accent mb-4">STEP 04</p>
+            <p class="font-serif text-2xl mb-3">Check &amp; download</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              The print check flags problems as you work. When it's clean,
+              download the PDF and upload it to your printer.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Print check -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / PRINT CHECK
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug mb-6">
+            Catch the rejection before the printer does.
+          </h2>
+          <p class="text-muted font-light leading-relaxed">
+            Coverbook keeps checking your design against the printer's specs
+            while you edit: text leaving the safe zone, text hidden under the
+            barcode, spine text on a book too thin to carry it, images too
+            low-resolution to print sharp, page counts the paper doesn't
+            support.
+          </p>
+        </div>
+
+        <div
+          class="fade-in bg-white border border-faint p-6 md:p-8"
+          style="transition-delay: 0.15s"
+        >
+          <p
+            class="font-mono text-xs tracking-widest text-muted mb-6 flex items-center justify-between"
+          >
+            <span>PRINT CHECK</span><span>AMAZON KDP</span>
+          </p>
+          <ul class="space-y-3 text-sm">
+            <li
+              class="check-row flex gap-3 p-3 bg-red-50 text-red-800"
+              style="transition-delay: 0.3s"
+            >
+              <span class="font-mono">✕</span>
+              <span
+                >KDP doesn't allow spine text with fewer than 79 pages: “The
+                Quiet Harbour”.</span
+              >
+            </li>
+            <li
+              class="check-row flex gap-3 p-3 bg-amber-50 text-amber-900"
+              style="transition-delay: 0.5s"
+            >
+              <span class="font-mono">!</span>
+              <span
+                >The text “A. N. Author” goes outside the safe zone and could
+                be cut or folded.</span
+              >
+            </li>
+            <li
+              class="check-row flex gap-3 p-3 bg-amber-50 text-amber-900"
+              style="transition-delay: 0.7s"
+            >
+              <span class="font-mono">!</span>
+              <span
+                >An image is 180 DPI at this size (recommended minimum: 300). It
+                will look blurry in print.</span
+              >
+            </li>
+            <li
+              class="check-row flex gap-3 p-3 text-accent"
+              style="transition-delay: 0.9s; background: rgba(3, 105, 161, 0.08)"
+            >
+              <span class="font-mono">✓</span>
+              <span>The barcode is inside the back cover's safe zone.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Details -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">
+          / DETAILS
+        </p>
+        <div
+          class="grid grid-cols-2 md:grid-cols-4 gap-px bg-faint border border-faint"
+        >
+          <div class="infra-card bg-warm p-8 fade-in">
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">Free</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              No account, no watermark, no paywall on the PDF.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.1s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Autosaved
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Your design is saved in the browser as you work. Close the tab
+              and pick it up later.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.2s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Typography
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Playfair Display, Merriweather, Montserrat, Oswald, Bebas Neue
+              and Raleway, ready to use.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.3s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Bilingual
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              The whole editor and every check, in English and Spanish.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- CTA -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-end">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / START
+          </p>
+          <h2 class="font-serif text-4xl md:text-5xl leading-tight">
+            Your book deserves<br />a cover that prints.
+          </h2>
+        </div>
+        <div class="fade-in space-y-8" style="transition-delay: 0.15s">
+          <p class="text-muted font-light leading-relaxed">
+            Open the editor and have a print-ready PDF in minutes. Coverbook is
+            built and run by MEPS — if you have ideas or need something
+            similar for your organisation,
+            <a
+              href="/#contact"
+              class="text-ink border-b border-ink hover:text-accent hover:border-accent transition-colors"
+              >get in touch</a
+            >.
+          </p>
+          <a
+            href="https://coverbook.meps.software/editor"
+            class="inline-block font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+            >OPEN THE EDITOR →</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-faint py-8 px-6">
+      <div
+        class="max-w-5xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+      >
+        <a href="/" class="font-mono text-xs text-muted tracking-widest"
+          ><span style="color: #c2410c">M</span
+          ><span style="color: #7c3aed">E</span
+          ><span style="color: #0369a1">P</span
+          ><span style="color: #2d5a27">S</span> · meps.software</a
+        >
+        <span class="font-mono text-xs text-muted"
+          >Amazon KDP and IngramSpark are trademarks of their respective
+          owners.</span
+        >
+      </div>
+    </footer>
+
+    <script>
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("visible");
+              observer.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+
+      document
+        .querySelectorAll(".fade-in")
+        .forEach((el) => observer.observe(el));
+    </script>
+  </body>
+</html>
