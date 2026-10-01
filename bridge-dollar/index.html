@@ -1,0 +1,1185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bridge Dollar · Self-hosted payment hub · MEPS</title>
+    <meta
+      name="description"
+      content="Self-hosted payment hub: every business and store behind one integration — Stripe, PayPal, Mercado Pago, Redsys and Bizum — with every sale in one dashboard, in real time."
+    />
+    <link rel="alternate" hreflang="es" href="/es/bridge-dollar/" />
+    <link rel="icon" href="../favicon.ico" sizes="32x32" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ["DM Serif Display", "Georgia", "serif"],
+              mono: ["DM Mono", "monospace"],
+              sans: ["DM Sans", "system-ui", "sans-serif"],
+            },
+            colors: {
+              ink: "#1a1a18",
+              muted: "#6b6b65",
+              faint: "#e8e6df",
+              warm: "#f5f3ee",
+              accent: "#047857",
+            },
+            letterSpacing: {
+              widest: "0.2em",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: #f5f3ee;
+      }
+
+      .fade-in {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      hr.ruling {
+        border: none;
+        border-top: 1px solid #c8c5bc;
+      }
+
+      .infra-card {
+        transition:
+          background 0.25s ease,
+          transform 0.25s ease;
+      }
+      .infra-card:hover {
+        background: #fff;
+        transform: translateY(-2px);
+      }
+      .infra-card:hover .infra-title {
+        text-shadow: 0 0 40px currentColor;
+      }
+
+      ::selection {
+        background: #047857;
+        color: #f5f3ee;
+      }
+
+      /* Hub diagram: connections draw in, then payments start flowing */
+      .wire {
+        stroke-dasharray: 400;
+        stroke-dashoffset: 400;
+        transition: stroke-dashoffset 1.2s ease;
+      }
+      .visible .wire {
+        stroke-dashoffset: 0;
+      }
+      .visible .wire.d1 {
+        transition-delay: 0.5s;
+      }
+      .pulse {
+        opacity: 0;
+        transition: opacity 0.6s ease 1.6s;
+      }
+      .visible .pulse {
+        opacity: 1;
+      }
+
+      .check-row,
+      .sale-row {
+        opacity: 0;
+        transform: translateX(-8px);
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s ease;
+      }
+      .visible .check-row,
+      .visible .sale-row {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .pulse {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body class="font-sans text-ink antialiased">
+    <!-- Nav -->
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 bg-warm/80 backdrop-blur-sm border-b border-faint"
+    >
+      <div
+        class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between"
+      >
+        <span class="font-mono text-sm tracking-widest font-light">
+          <a href="/"
+            ><span style="color: #c2410c">M</span
+            ><span style="color: #7c3aed">E</span
+            ><span style="color: #0369a1">P</span
+            ><span style="color: #2d5a27">S</span></a
+          ><span class="text-muted"> / </span
+          ><span class="text-accent">BRIDGE DOLLAR</span>
+        </span>
+        <a
+          href="/es/bridge-dollar/"
+          hreflang="es"
+          class="font-mono text-xs tracking-widest text-muted hover:text-accent transition-colors"
+          >ES</a
+        >
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="min-h-screen flex flex-col justify-center px-6 pt-24 pb-16">
+      <div
+        class="max-w-5xl mx-auto w-full grid lg:grid-cols-5 gap-12 lg:gap-16 items-center"
+      >
+        <div class="lg:col-span-2">
+          <p
+            class="font-mono text-xs tracking-widest text-muted mb-8 fade-in"
+          >
+            / PRODUCT · SELF-HOSTED PAYMENT HUB
+          </p>
+          <h1
+            class="font-serif text-5xl md:text-7xl leading-none mb-8 fade-in"
+            style="transition-delay: 0.1s"
+          >
+            Bridge<br /><span class="text-accent">Dollar</span
+            ><span class="text-muted">.</span>
+          </h1>
+          <p
+            class="text-base md:text-lg text-muted font-light leading-relaxed fade-in"
+            style="transition-delay: 0.2s"
+          >
+            All of a company's payments, from every business and store,
+            channelled through a single place.
+          </p>
+          <div
+            class="mt-10 flex flex-wrap items-center gap-6 fade-in"
+            style="transition-delay: 0.3s"
+          >
+            <a
+              href="/#contact"
+              class="font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+              >TALK TO US →</a
+            >
+            <a
+              href="#flow"
+              class="inline-flex items-center gap-3 font-mono text-xs tracking-widest text-muted hover:text-accent transition-colors"
+            >
+              <span>HOW IT WORKS</span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M8 3v10M3 8l5 5 5-5" />
+              </svg>
+            </a>
+          </div>
+          <p
+            class="mt-6 font-mono text-xs text-muted fade-in"
+            style="transition-delay: 0.35s"
+          >
+            Single binary · Your servers · Your data
+          </p>
+        </div>
+
+        <!-- Hub diagram -->
+        <figure class="lg:col-span-3 fade-in" style="transition-delay: 0.25s">
+          <svg
+            viewBox="0 0 660 440"
+            class="w-full h-auto"
+            role="img"
+            aria-label="Five stores from three brands connect to Bridge Dollar, which connects to Stripe, PayPal, Mercado Pago and Redsys with Bizum, and feeds a single live sales dashboard"
+          >
+            <defs>
+              <path id="s1" d="M170 60 C 215 60, 205 180, 250 180" />
+              <path id="s2" d="M170 116 C 215 116, 205 180, 250 180" />
+              <path id="s3" d="M170 172 C 215 172, 205 180, 250 180" />
+              <path id="s4" d="M170 228 C 215 228, 205 180, 250 180" />
+              <path id="s5" d="M170 284 C 215 284, 205 180, 250 180" />
+              <path id="p1" d="M410 180 C 455 180, 445 70, 490 70" />
+              <path id="p2" d="M410 180 C 455 180, 445 138, 490 138" />
+              <path id="p3" d="M410 180 C 455 180, 445 206, 490 206" />
+              <path id="p4" d="M410 180 C 455 180, 445 274, 490 274" />
+            </defs>
+
+            <!-- Column labels -->
+            <g
+              font-family="DM Mono, monospace"
+              font-size="10"
+              letter-spacing="2"
+              fill="#6b6b65"
+              text-anchor="middle"
+            >
+              <text x="90" y="16">STORES</text>
+              <text x="330" y="16">ONE HUB</text>
+              <text x="570" y="16">PROVIDERS</text>
+            </g>
+
+            <!-- Wires -->
+            <g fill="none" stroke="#c8c5bc" stroke-width="1.25">
+              <use class="wire" href="#s1" />
+              <use class="wire" href="#s2" />
+              <use class="wire" href="#s3" />
+              <use class="wire" href="#s4" />
+              <use class="wire" href="#s5" />
+            </g>
+            <g fill="none" stroke="#047857" stroke-width="1.25" opacity="0.5">
+              <use class="wire d1" href="#p1" />
+              <use class="wire d1" href="#p2" />
+              <use class="wire d1" href="#p3" />
+              <use class="wire d1" href="#p4" />
+            </g>
+            <line
+              class="pulse"
+              x1="330"
+              y1="240"
+              x2="330"
+              y2="310"
+              stroke="#047857"
+              stroke-width="1.25"
+              stroke-dasharray="4 4"
+            />
+
+            <!-- Payments in flight -->
+            <g class="pulse" fill="#047857">
+              <circle r="3.5">
+                <animateMotion dur="3.2s" repeatCount="indefinite" begin="0s">
+                  <mpath href="#s2" />
+                </animateMotion>
+              </circle>
+              <circle r="3.5">
+                <animateMotion dur="3.6s" repeatCount="indefinite" begin="1.1s">
+                  <mpath href="#s5" />
+                </animateMotion>
+              </circle>
+              <circle r="3.5">
+                <animateMotion dur="3s" repeatCount="indefinite" begin="2s">
+                  <mpath href="#s1" />
+                </animateMotion>
+              </circle>
+              <circle r="3.5">
+                <animateMotion dur="3.4s" repeatCount="indefinite" begin="0.6s">
+                  <mpath href="#p4" />
+                </animateMotion>
+              </circle>
+              <circle r="3.5">
+                <animateMotion dur="3s" repeatCount="indefinite" begin="1.7s">
+                  <mpath href="#p1" />
+                </animateMotion>
+              </circle>
+              <circle r="3.5">
+                <animateMotion dur="3.8s" repeatCount="indefinite" begin="2.5s">
+                  <mpath href="#p2" />
+                </animateMotion>
+              </circle>
+            </g>
+
+            <!-- Stores -->
+            <g font-family="DM Mono, monospace" font-size="12" fill="#1a1a18">
+              <g>
+                <rect x="10" y="40" width="160" height="40" fill="#fff" stroke="#e8e6df" />
+                <rect x="10" y="40" width="3" height="40" fill="#c2410c" />
+                <text x="26" y="65">Web · Brand A</text>
+              </g>
+              <g>
+                <rect x="10" y="96" width="160" height="40" fill="#fff" stroke="#e8e6df" />
+                <rect x="10" y="96" width="3" height="40" fill="#c2410c" />
+                <text x="26" y="121">Shop · Madrid</text>
+              </g>
+              <g>
+                <rect x="10" y="152" width="160" height="40" fill="#fff" stroke="#e8e6df" />
+                <rect x="10" y="152" width="3" height="40" fill="#c2410c" />
+                <text x="26" y="177">Shop · Valencia</text>
+              </g>
+              <g>
+                <rect x="10" y="208" width="160" height="40" fill="#fff" stroke="#e8e6df" />
+                <rect x="10" y="208" width="3" height="40" fill="#0369a1" />
+                <text x="26" y="233">Web · Brand B</text>
+              </g>
+              <g>
+                <rect x="10" y="264" width="160" height="40" fill="#fff" stroke="#e8e6df" />
+                <rect x="10" y="264" width="3" height="40" fill="#7c3aed" />
+                <text x="26" y="289">App · Brand C</text>
+              </g>
+            </g>
+
+            <!-- Hub -->
+            <rect x="250" y="120" width="160" height="120" fill="#047857" />
+            <text
+              x="330"
+              y="180"
+              text-anchor="middle"
+              font-family="DM Serif Display, Georgia, serif"
+              font-size="22"
+              fill="#f5f3ee"
+            >
+              Bridge Dollar
+            </text>
+            <text
+              x="330"
+              y="206"
+              text-anchor="middle"
+              font-family="DM Mono, monospace"
+              font-size="9"
+              letter-spacing="1.5"
+              fill="#f5f3ee"
+              opacity="0.75"
+            >
+              ONE API · ONE LEDGER
+            </text>
+
+            <!-- Providers -->
+            <g font-family="DM Mono, monospace" font-size="12" fill="#1a1a18">
+              <rect x="490" y="50" width="160" height="40" fill="#f5f3ee" stroke="#c8c5bc" />
+              <text x="506" y="75">Stripe</text>
+              <rect x="490" y="118" width="160" height="40" fill="#f5f3ee" stroke="#c8c5bc" />
+              <text x="506" y="143">PayPal</text>
+              <rect x="490" y="186" width="160" height="40" fill="#f5f3ee" stroke="#c8c5bc" />
+              <text x="506" y="211">Mercado Pago</text>
+              <rect x="490" y="254" width="160" height="40" fill="#f5f3ee" stroke="#c8c5bc" />
+              <text x="506" y="279">Redsys · Bizum</text>
+            </g>
+
+            <!-- Dashboard -->
+            <rect x="190" y="310" width="280" height="126" fill="#fff" stroke="#e8e6df" />
+            <g font-family="DM Mono, monospace" font-size="10" fill="#6b6b65">
+              <text x="204" y="332" letter-spacing="2">ALL SALES · LIVE</text>
+              <circle cx="452" cy="328" r="3.5" fill="#047857" />
+            </g>
+            <line x1="204" y1="342" x2="456" y2="342" stroke="#e8e6df" />
+            <g font-family="DM Mono, monospace" font-size="11" fill="#1a1a18">
+              <g class="sale-row" style="transition-delay: 1.8s">
+                <text x="204" y="362">Shop · Madrid</text>
+                <text x="330" y="362" fill="#6b6b65">Bizum</text>
+                <text x="440" y="362" text-anchor="end">€42.00</text>
+                <circle cx="452" cy="358" r="3" fill="#047857" />
+              </g>
+              <g class="sale-row" style="transition-delay: 2.1s">
+                <text x="204" y="384">Web · Brand B</text>
+                <text x="330" y="384" fill="#6b6b65">Stripe</text>
+                <text x="440" y="384" text-anchor="end">€129.90</text>
+                <circle cx="452" cy="380" r="3" fill="#047857" />
+              </g>
+              <g class="sale-row" style="transition-delay: 2.4s">
+                <text x="204" y="406">App · Brand C</text>
+                <text x="330" y="406" fill="#6b6b65">PayPal</text>
+                <text x="440" y="406" text-anchor="end">€18.50</text>
+                <circle cx="452" cy="402" r="3" fill="#ca8a04" />
+              </g>
+              <g class="sale-row" style="transition-delay: 2.7s">
+                <text x="204" y="428">Web · Brand A</text>
+                <text x="330" y="428" fill="#6b6b65">Redsys</text>
+                <text x="440" y="428" text-anchor="end">€310.00</text>
+                <circle cx="452" cy="424" r="3" fill="#047857" />
+              </g>
+            </g>
+          </svg>
+          <figcaption
+            class="mt-4 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-muted"
+          >
+            <span>Each store integrates once</span>
+            <span>Gateways shared across stores</span>
+            <span class="inline-flex items-center gap-2"
+              ><span
+                class="inline-block w-2 h-2 rounded-full"
+                style="background: #047857"
+              ></span
+              >completed</span
+            >
+            <span class="inline-flex items-center gap-2"
+              ><span
+                class="inline-block w-2 h-2 rounded-full"
+                style="background: #ca8a04"
+              ></span
+              >pending</span
+            >
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Problem -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / WHY
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+            Many stores, many gateways, no single view of what you sell.
+          </h2>
+        </div>
+
+        <div
+          class="fade-in space-y-6 text-muted font-light leading-relaxed"
+          style="transition-delay: 0.15s"
+        >
+          <p>
+            A company with several businesses — each with its own web shops,
+            locations and brands — usually ends up with one payment integration
+            per store. Each has its own credentials, webhooks and quirks:
+            Stripe here, PayPal there, the bank's card terminal and Bizum
+            somewhere else. Every new location means asking for another
+            merchant account.
+          </p>
+          <p>
+            Sales end up scattered across half a dozen provider dashboards, and
+            nobody can see at a glance what the whole group is selling.
+          </p>
+          <p class="text-ink">
+            Bridge Dollar sits in the middle. Stores call it instead of the
+            provider; it handles the checkout, confirms the payment and records
+            every sale in one place.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- What you get -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">
+          / WHAT YOU GET
+        </p>
+        <div
+          class="grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-faint border border-faint"
+        >
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="border-top: 2px solid #047857"
+          >
+            <p class="font-mono text-xs text-muted mb-6">01</p>
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              One integration
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Every store makes the same simple API call, whichever provider
+              ends up charging the customer.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.1s; border-top: 2px solid #047857"
+          >
+            <p class="font-mono text-xs text-muted mb-6">02</p>
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Shared gateways
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Several stores can share the same gateway. No need to request a
+              new merchant account for every location.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.2s; border-top: 2px solid #047857"
+          >
+            <p class="font-mono text-xs text-muted mb-6">03</p>
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Every sale, one view
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Sales from every business and store in a single dashboard, in
+              real time.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.3s; border-top: 2px solid #047857"
+          >
+            <p class="font-mono text-xs text-muted mb-6">04</p>
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Self-hosted
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              A single compiled binary, under licence, on your own
+              infrastructure. Your data and payment credentials never leave
+              it.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Payment flow -->
+    <section id="flow" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / HOW A PAYMENT FLOWS
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+              Store → Bridge Dollar → provider → Bridge Dollar → store.
+            </h2>
+          </div>
+          <p
+            class="fade-in text-muted font-light leading-relaxed"
+            style="transition-delay: 0.15s"
+          >
+            The store never talks to the provider. Bridge Dollar creates the
+            checkout, verifies the result with the provider itself and tells
+            the store exactly once how it ended.
+          </p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-12 lg:gap-16 items-start">
+          <!-- Sequence diagram -->
+          <figure class="hidden md:block lg:col-span-3 fade-in">
+            <svg
+              viewBox="0 0 640 470"
+              class="w-full h-auto"
+              role="img"
+              aria-label="Sequence diagram between customer, store, Bridge Dollar and payment provider"
+            >
+              <defs>
+                <marker
+                  id="arr"
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="7"
+                  markerHeight="7"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M0 0 L10 5 L0 10 z" fill="#1a1a18" />
+                </marker>
+                <marker
+                  id="arr-a"
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="7"
+                  markerHeight="7"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M0 0 L10 5 L0 10 z" fill="#047857" />
+                </marker>
+              </defs>
+
+              <!-- Lifelines -->
+              <g font-family="DM Mono, monospace" font-size="12" text-anchor="middle">
+                <rect x="20" y="10" width="110" height="34" fill="#fff" stroke="#e8e6df" />
+                <text x="75" y="32" fill="#1a1a18">Customer</text>
+                <rect x="180" y="10" width="110" height="34" fill="#fff" stroke="#e8e6df" />
+                <text x="235" y="32" fill="#1a1a18">Store</text>
+                <rect x="340" y="10" width="120" height="34" fill="#047857" />
+                <text x="400" y="32" fill="#f5f3ee">Bridge Dollar</text>
+                <rect x="510" y="10" width="110" height="34" fill="#fff" stroke="#e8e6df" />
+                <text x="565" y="32" fill="#1a1a18">Provider</text>
+              </g>
+              <g stroke-dasharray="3 4" stroke-width="1">
+                <line x1="75" y1="44" x2="75" y2="420" stroke="#c8c5bc" />
+                <line x1="235" y1="44" x2="235" y2="420" stroke="#c8c5bc" />
+                <line x1="400" y1="44" x2="400" y2="420" stroke="#047857" />
+                <line x1="565" y1="44" x2="565" y2="420" stroke="#c8c5bc" />
+              </g>
+
+              <g font-family="DM Mono, monospace" font-size="11" fill="#1a1a18">
+                <!-- 1 -->
+                <line x1="235" y1="86" x2="398" y2="86" stroke="#1a1a18" marker-end="url(#arr)" />
+                <text x="245" y="78">1 create checkout</text>
+                <line x1="400" y1="112" x2="237" y2="112" stroke="#1a1a18" stroke-dasharray="4 3" marker-end="url(#arr)" />
+                <text x="390" y="128" text-anchor="end" fill="#6b6b65">checkout URL · sale pending</text>
+
+                <!-- 2 -->
+                <line x1="75" y1="160" x2="563" y2="160" stroke="#1a1a18" marker-end="url(#arr)" />
+                <text x="85" y="152">2 pays on the provider's page</text>
+
+                <!-- 3 -->
+                <line x1="565" y1="200" x2="402" y2="200" stroke="#1a1a18" marker-end="url(#arr)" />
+                <text x="555" y="192" text-anchor="end">3 redirects customer back</text>
+                <line x1="400" y1="232" x2="563" y2="232" stroke="#047857" marker-end="url(#arr-a)" />
+                <text x="410" y="224" fill="#047857">verify payment</text>
+                <line x1="565" y1="256" x2="402" y2="256" stroke="#047857" stroke-dasharray="4 3" marker-end="url(#arr-a)" />
+                <text x="555" y="272" text-anchor="end" fill="#6b6b65">confirmed</text>
+
+                <!-- 4 -->
+                <line x1="565" y1="306" x2="402" y2="306" stroke="#1a1a18" marker-end="url(#arr)" />
+                <text x="555" y="298" text-anchor="end">4 signed webhook</text>
+
+                <!-- 5 -->
+                <line x1="400" y1="350" x2="237" y2="350" stroke="#047857" stroke-width="1.5" marker-end="url(#arr-a)" />
+                <text x="390" y="342" text-anchor="end" fill="#047857">5 sale.completed · once</text>
+
+                <!-- 6 -->
+                <line x1="400" y1="392" x2="77" y2="392" stroke="#1a1a18" marker-end="url(#arr)" />
+                <text x="390" y="384" text-anchor="end">6 back to the store's success page</text>
+              </g>
+
+              <!-- Sweeper -->
+              <rect x="270" y="430" width="260" height="30" fill="#f5f3ee" stroke="#c8c5bc" stroke-dasharray="3 3" />
+              <text
+                x="400"
+                y="449"
+                text-anchor="middle"
+                font-family="DM Mono, monospace"
+                font-size="10"
+                fill="#6b6b65"
+              >
+                sweeper closes stale checkouts · 25 h
+              </text>
+            </svg>
+          </figure>
+
+          <ol class="lg:col-span-2 space-y-6">
+            <li class="fade-in flex gap-4">
+              <span class="font-mono text-xs text-accent pt-1">01</span>
+              <p class="text-sm text-muted font-light leading-relaxed">
+                <span class="text-ink font-normal">The store asks for a checkout</span>
+                with its API key. Bridge Dollar records a pending sale and
+                returns the checkout URL.
+              </p>
+            </li>
+            <li class="fade-in flex gap-4" style="transition-delay: 0.05s">
+              <span class="font-mono text-xs text-accent pt-1">02</span>
+              <p class="text-sm text-muted font-light leading-relaxed">
+                <span class="text-ink font-normal">The customer pays</span> on
+                the provider's own page — Stripe, PayPal, Mercado Pago or
+                Redsys/Bizum.
+              </p>
+            </li>
+            <li class="fade-in flex gap-4" style="transition-delay: 0.1s">
+              <span class="font-mono text-xs text-accent pt-1">03</span>
+              <p class="text-sm text-muted font-light leading-relaxed">
+                <span class="text-ink font-normal">The redirect is never trusted.</span>
+                Bridge Dollar checks the payment directly with the provider
+                before marking the sale.
+              </p>
+            </li>
+            <li class="fade-in flex gap-4" style="transition-delay: 0.15s">
+              <span class="font-mono text-xs text-accent pt-1">04</span>
+              <p class="text-sm text-muted font-light leading-relaxed">
+                <span class="text-ink font-normal">The provider's signed webhook</span>
+                is verified too. Whichever arrives first settles the sale.
+              </p>
+            </li>
+            <li class="fade-in flex gap-4" style="transition-delay: 0.2s">
+              <span class="font-mono text-xs text-accent pt-1">05</span>
+              <p class="text-sm text-muted font-light leading-relaxed">
+                <span class="text-ink font-normal">The store gets exactly one</span>
+                signed notification: <code class="font-mono text-xs">sale.completed</code>
+                or <code class="font-mono text-xs">sale.failed</code>.
+              </p>
+            </li>
+            <li class="fade-in flex gap-4" style="transition-delay: 0.25s">
+              <span class="font-mono text-xs text-accent pt-1">06</span>
+              <p class="text-sm text-muted font-light leading-relaxed">
+                <span class="text-ink font-normal">The customer lands back</span>
+                on the store's success or cancel page. A background sweeper
+                closes abandoned checkouts after 25 hours, so nothing stays
+                pending forever.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Providers -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / PROVIDERS
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+              Four providers and Bizum, integrated by hand.
+            </h2>
+          </div>
+          <p
+            class="fade-in text-muted font-light leading-relaxed"
+            style="transition-delay: 0.15s"
+          >
+            Every provider is integrated directly against its REST API — no
+            vendor SDKs. A "manual / other" gateway covers payments recorded by
+            hand, so they still show up alongside everything else.
+          </p>
+        </div>
+
+        <div
+          class="grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-faint border border-faint"
+        >
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="border-top: 2px solid #635bff"
+          >
+            <p class="font-mono text-xs text-muted mb-6">01</p>
+            <p class="font-serif text-2xl mb-4 infra-title" style="color: #635bff">
+              Stripe
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Checkout Sessions, with Stripe's signed webhooks verified on
+              arrival.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.1s; border-top: 2px solid #0369a1"
+          >
+            <p class="font-mono text-xs text-muted mb-6">02</p>
+            <p class="font-serif text-2xl mb-4 infra-title" style="color: #0369a1">
+              PayPal
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Orders v2. The payment is captured server-side, even if the
+              customer closes the tab.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.2s; border-top: 2px solid #0891b2"
+          >
+            <p class="font-mono text-xs text-muted mb-6">03</p>
+            <p class="font-serif text-2xl mb-4 infra-title" style="color: #0891b2">
+              Mercado Pago
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Checkout Pro, for stores selling across Latin America.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.3s; border-top: 2px solid #c2410c"
+          >
+            <p class="font-mono text-xs text-muted mb-6">04</p>
+            <p class="font-serif text-2xl mb-4 infra-title" style="color: #c2410c">
+              Redsys · Bizum
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              The Spanish banks' virtual card terminal, Bizum included. Its
+              3DES + HMAC-SHA256 signature is implemented from scratch and
+              validated against Redsys' real test environment.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Sales explorer -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / SALES EXPLORER
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug mb-6">
+            The whole group's sales, one filter away.
+          </h2>
+          <p class="text-muted font-light leading-relaxed mb-6">
+            Filter by business, store, gateway, provider, status, currency,
+            dates, amount or free text, and sort any column. Filters live in
+            the URL, so a view can be bookmarked or shared with a colleague.
+          </p>
+          <p class="text-muted font-light leading-relaxed">
+            Failed sales say why — customer cancelled, session expired, payment
+            declined, provider error — next to the provider's own explanation.
+          </p>
+        </div>
+
+        <div
+          class="fade-in bg-white border border-faint p-6 md:p-8"
+          style="transition-delay: 0.15s"
+        >
+          <div class="flex flex-wrap gap-2 mb-6 font-mono text-xs">
+            <span class="px-2 py-1 bg-faint text-muted">business: all</span>
+            <span class="px-2 py-1 text-accent" style="background: rgba(4, 120, 87, 0.08)"
+              >provider: redsys, stripe</span
+            >
+            <span class="px-2 py-1 bg-faint text-muted">this month</span>
+          </div>
+          <table class="w-full text-sm">
+            <thead>
+              <tr
+                class="font-mono text-xs tracking-wider text-muted text-left border-b border-faint"
+              >
+                <th class="font-normal pb-3">STORE</th>
+                <th class="font-normal pb-3 pl-4 hidden sm:table-cell">PROVIDER</th>
+                <th class="font-normal pb-3 pl-4 text-right">AMOUNT</th>
+                <th class="font-normal pb-3 pl-4 text-right">STATUS</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-faint">
+              <tr class="sale-row" style="transition-delay: 0.3s">
+                <td class="py-3">Shop · Madrid</td>
+                <td class="py-3 pl-4 text-muted hidden sm:table-cell">Bizum</td>
+                <td class="py-3 pl-4 text-right font-mono whitespace-nowrap">€42.00</td>
+                <td class="py-3 pl-4 text-right font-mono text-xs text-accent">completed</td>
+              </tr>
+              <tr class="sale-row" style="transition-delay: 0.45s">
+                <td class="py-3">Web · Brand B</td>
+                <td class="py-3 pl-4 text-muted hidden sm:table-cell">Stripe</td>
+                <td class="py-3 pl-4 text-right font-mono whitespace-nowrap">€129.90</td>
+                <td class="py-3 pl-4 text-right font-mono text-xs text-accent">completed</td>
+              </tr>
+              <tr class="sale-row" style="transition-delay: 0.6s">
+                <td class="py-3">
+                  Shop · Valencia
+                  <span class="block text-xs text-red-800 font-light"
+                    >Payment declined · card denied by issuer</span
+                  >
+                </td>
+                <td class="py-3 pl-4 text-muted hidden sm:table-cell">Redsys</td>
+                <td class="py-3 pl-4 text-right font-mono whitespace-nowrap">€65.00</td>
+                <td class="py-3 pl-4 text-right font-mono text-xs text-red-800">failed</td>
+              </tr>
+              <tr class="sale-row" style="transition-delay: 0.75s">
+                <td class="py-3">Web · Brand A</td>
+                <td class="py-3 pl-4 text-muted hidden sm:table-cell">Redsys</td>
+                <td class="py-3 pl-4 text-right font-mono whitespace-nowrap">€310.00</td>
+                <td class="py-3 pl-4 text-right font-mono text-xs text-amber-700">pending</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Test gateway -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div
+          class="fade-in bg-white border border-faint p-6 md:p-8 md:order-1 order-2"
+        >
+          <p
+            class="font-mono text-xs tracking-widest text-muted mb-6 flex items-center justify-between"
+          >
+            <span>CHECK CONNECTION</span><span>STRIPE</span>
+          </p>
+          <ul class="space-y-3 text-sm">
+            <li
+              class="check-row flex gap-3 p-3 text-accent"
+              style="transition-delay: 0.3s; background: rgba(4, 120, 87, 0.08)"
+            >
+              <span class="font-mono">✓</span>
+              <span>API keys accepted by Stripe (test mode).</span>
+            </li>
+            <li
+              class="check-row flex gap-3 p-3 text-accent"
+              style="transition-delay: 0.5s; background: rgba(4, 120, 87, 0.08)"
+            >
+              <span class="font-mono">✓</span>
+              <span>Webhook endpoint registered for checkout events.</span>
+            </li>
+            <li
+              class="check-row flex gap-3 p-3 bg-amber-50 text-amber-900"
+              style="transition-delay: 0.7s"
+            >
+              <span class="font-mono">!</span>
+              <span
+                >The public URL points to localhost. The provider won't be able
+                to send customers or webhooks back.</span
+              >
+            </li>
+            <li
+              class="check-row flex gap-3 p-3 bg-faint text-muted"
+              style="transition-delay: 0.9s"
+            >
+              <span class="font-mono">€</span>
+              <span>Nothing was charged.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="fade-in md:order-2 order-1" style="transition-delay: 0.15s">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / TEST A GATEWAY
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug mb-6">
+            Know it works before a customer finds out it doesn't.
+          </h2>
+          <p class="text-muted font-light leading-relaxed mb-6">
+            <span class="text-ink">Check connection</span> validates
+            credentials, webhook configuration and the public URL against each
+            provider, without charging anything.
+          </p>
+          <p class="text-muted font-light leading-relaxed">
+            <span class="text-ink">Test payment</span> runs a real end-to-end
+            checkout in the provider's sandbox and follows it live: status,
+            history and webhook deliveries. Test sales are flagged and never
+            mixed with real ones.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Details -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">
+          / DETAILS
+        </p>
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-px bg-faint border border-faint"
+        >
+          <div class="infra-card bg-warm p-8 fade-in">
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Signed webhooks
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Stores are notified with HMAC-signed webhooks, same scheme as
+              Stripe, with a delivery log per sale: status code or error of
+              every attempt.
+            </p>
+          </div>
+          <div class="infra-card bg-warm p-8 fade-in" style="transition-delay: 0.1s">
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Audit trail
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Every change to a sale records who made it — dashboard, store,
+              customer, system or provider — and what changed, shown as a
+              timeline.
+            </p>
+          </div>
+          <div class="infra-card bg-warm p-8 fade-in" style="transition-delay: 0.2s">
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Nothing is deleted
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Sales are never deleted. Stores, businesses and gateways with
+              sales are archived: credentials revoked, history kept.
+            </p>
+          </div>
+          <div class="infra-card bg-warm p-8 fade-in">
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Your model
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Company → businesses → stores → gateways → sales. It maps to how
+              the group is actually organised.
+            </p>
+          </div>
+          <div class="infra-card bg-warm p-8 fade-in" style="transition-delay: 0.1s">
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Help centre
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Built in, in Spanish: concepts, the payment flow, a store
+              integration guide and step-by-step setup for each provider.
+            </p>
+          </div>
+          <div class="infra-card bg-warm p-8 fade-in" style="transition-delay: 0.2s">
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              OpenAPI
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Swagger documentation generated from the code for the whole
+              API, so integrating a store is a matter of reading one page.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Pricing -->
+    <section id="pricing" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / PRICING
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+              Pay once. Run it on your servers.
+            </h2>
+          </div>
+          <p
+            class="fade-in text-muted font-light leading-relaxed"
+            style="transition-delay: 0.15s"
+          >
+            No platform fee, no basis points on every sale. You buy the licence once and Bridge Dollar never takes a cut of what you sell — you only pay your providers' usual fees.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-px bg-faint border border-faint">
+          <div
+            class="infra-card bg-warm p-8 md:p-10 fade-in flex flex-col"
+            style="border-top: 2px solid #047857"
+          >
+            <div class="flex items-center justify-between mb-6">
+              <p class="font-mono text-xs tracking-widest text-muted">SELF-HOSTED</p>
+              <span
+                class="font-mono text-xs px-2 py-0.5 rounded text-accent"
+                style="background: rgba(4, 120, 87, 0.1)"
+                >available</span
+              >
+            </div>
+            <p class="font-serif text-3xl mb-2 infra-title text-accent">Licence</p>
+            <p class="mb-8">
+              <span class="font-serif text-5xl">€6,500</span>
+              <span class="font-mono text-xs text-muted ml-2">one-time · + VAT</span>
+            </p>
+            <ul class="space-y-3 text-sm text-muted font-light leading-relaxed mb-10">
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Single compiled binary, installed on your infrastructure</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Every business, store and gateway you need</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Stripe, PayPal, Mercado Pago, Redsys and Bizum</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Updates and security patches for 3 years. After that, optional renewal at €1,300/year — the software keeps working either way</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Your data and payment credentials stay with you</span>
+              </li>
+            </ul>
+            <a
+              href="/#contact"
+              class="mt-auto self-start font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+              >REQUEST A LICENCE →</a
+            >
+          </div>
+
+          <div
+            class="infra-card bg-warm p-8 md:p-10 fade-in flex flex-col"
+            style="transition-delay: 0.1s; border-top: 2px solid #c8c5bc"
+          >
+            <div class="flex items-center justify-between mb-6">
+              <p class="font-mono text-xs tracking-widest text-muted">MANAGED BY MEPS</p>
+              <span class="font-mono text-xs px-2 py-0.5 rounded text-muted bg-faint"
+                >coming soon</span
+              >
+            </div>
+            <p class="font-serif text-3xl mb-2 infra-title text-muted">Cloud</p>
+            <p class="mb-8">
+              <span class="font-serif text-5xl text-muted">—</span>
+              <span class="font-mono text-xs text-muted ml-2">monthly subscription</span>
+            </p>
+            <ul class="space-y-3 text-sm text-muted font-light leading-relaxed mb-10">
+              <li class="flex gap-3">
+                <span class="font-mono text-muted">·</span><span>Same product, hosted and run by us</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-muted">·</span><span>No servers to install, update or monitor</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-muted">·</span><span>Updates and patches applied automatically</span>
+              </li>
+            </ul>
+            <a
+              href="/#contact"
+              class="mt-auto self-start font-mono text-xs tracking-widest text-muted border border-faint px-5 py-3 hover:text-accent hover:border-accent transition-colors"
+              >NOTIFY ME →</a
+            >
+          </div>
+        </div>
+
+        <p class="mt-6 font-mono text-xs text-muted fade-in">
+          Payment providers' own fees (Stripe, PayPal, Mercado Pago, your bank) are charged by them as usual.
+        </p>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- CTA -->
+    <section class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-end">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / START
+          </p>
+          <h2 class="font-serif text-4xl md:text-5xl leading-tight">
+            Every payment,<br />one place.
+          </h2>
+        </div>
+        <div class="fade-in space-y-8" style="transition-delay: 0.15s">
+          <p class="text-muted font-light leading-relaxed">
+            Bridge Dollar is licensed to run on your own infrastructure. It's
+            built and maintained by MEPS — tell us about your businesses and
+            stores and we'll see how it fits.
+          </p>
+          <a
+            href="/#contact"
+            class="inline-block font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+            >TALK TO US →</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-faint py-8 px-6">
+      <div
+        class="max-w-5xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+      >
+        <a href="/" class="font-mono text-xs text-muted tracking-widest"
+          ><span style="color: #c2410c">M</span
+          ><span style="color: #7c3aed">E</span
+          ><span style="color: #0369a1">P</span
+          ><span style="color: #2d5a27">S</span> · meps.software</a
+        >
+        <span class="font-mono text-xs text-muted"
+          >Stripe, PayPal, Mercado Pago, Redsys and Bizum are trademarks of
+          their respective owners.</span
+        >
+      </div>
+    </footer>
+
+    <script>
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("visible");
+              observer.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+
+      document
+        .querySelectorAll(".fade-in")
+        .forEach((el) => observer.observe(el));
+    </script>
+  </body>
+</html>
