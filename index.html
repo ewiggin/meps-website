@@ -562,6 +562,12 @@
                 required
                 class="w-full bg-transparent border-b border-faint focus:border-ink outline-none py-2 font-mono text-sm placeholder:text-muted transition-colors"
               />
+              <textarea
+                name="description"
+                placeholder="Tell us about your project or idea"
+                rows="4"
+                class="w-full bg-transparent border-b border-faint focus:border-ink outline-none py-2 font-mono text-sm placeholder:text-muted transition-colors resize-y"
+              ></textarea>
               <label
                 class="flex items-start gap-3 font-mono text-xs text-muted leading-relaxed"
               >
@@ -637,7 +643,7 @@
     </script>
 
     <script>
-      const CONTACT_API_URL = "https://round-scallop-9355.bosoft.deno.net/";
+      const CONTACT_API_URL = "https://meps-form.bosoft.deno.net/";
       const contactForm = document.getElementById("contact-form");
       const contactStatus = document.getElementById("contact-form-status");
 
