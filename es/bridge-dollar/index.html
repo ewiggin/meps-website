@@ -78,6 +78,21 @@
         text-shadow: 0 0 40px currentColor;
       }
 
+      /* Section sub-nav */
+      section[id] {
+        scroll-margin-top: 100px;
+      }
+      .subnav {
+        scrollbar-width: none;
+      }
+      .subnav::-webkit-scrollbar {
+        display: none;
+      }
+      .subnav a.active {
+        color: #047857;
+        border-color: #047857;
+      }
+
       ::selection {
         background: #047857;
         color: #f5f3ee;
@@ -148,10 +163,56 @@
           >EN</a
         >
       </div>
+      <div class="border-t border-faint">
+        <div
+          class="subnav max-w-5xl mx-auto px-6 flex gap-6 overflow-x-auto font-mono text-xs tracking-widest text-muted uppercase"
+        >
+          <a
+            href="#why"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Por qué</a
+          >
+          <a
+            href="#features"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Qué obtienes</a
+          >
+          <a
+            href="#flow"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Cómo funciona</a
+          >
+          <a
+            href="#providers"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Proveedores</a
+          >
+          <a
+            href="#sales"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Ventas</a
+          >
+          <a
+            href="#testing"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Pruebas</a
+          >
+          <a
+            href="#details"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Detalles</a
+          >
+          <a
+            href="#pricing"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Precio</a
+          >
+        </div>
+      </div>
     </nav>
 
     <!-- Hero -->
-    <section class="min-h-screen flex flex-col justify-center px-6 pt-24 pb-16">
+    <section class="min-h-screen flex flex-col justify-center px-6 pt-32 pb-16">
       <div
         class="max-w-5xl mx-auto w-full grid lg:grid-cols-5 gap-12 lg:gap-16 items-center"
       >
@@ -428,7 +489,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- Problem -->
-    <section class="py-24 px-6">
+    <section id="why" class="py-24 px-6">
       <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
         <div class="fade-in">
           <p class="font-mono text-xs tracking-widest text-muted mb-8">
@@ -467,7 +528,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- What you get -->
-    <section class="py-24 px-6">
+    <section id="features" class="py-24 px-6">
       <div class="max-w-5xl mx-auto">
         <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">
           / QUÉ OBTIENES
@@ -712,7 +773,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- Providers -->
-    <section class="py-24 px-6">
+    <section id="providers" class="py-24 px-6">
       <div class="max-w-5xl mx-auto">
         <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
           <div class="fade-in">
@@ -795,7 +856,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- Sales explorer -->
-    <section class="py-24 px-6">
+    <section id="sales" class="py-24 px-6">
       <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
         <div class="fade-in">
           <p class="font-mono text-xs tracking-widest text-muted mb-8">
@@ -878,7 +939,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- Test gateway -->
-    <section class="py-24 px-6">
+    <section id="testing" class="py-24 px-6">
       <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
         <div
           class="fade-in bg-white border border-faint p-6 md:p-8 md:order-1 order-2"
@@ -948,7 +1009,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- Details -->
-    <section class="py-24 px-6">
+    <section id="details" class="py-24 px-6">
       <div class="max-w-5xl mx-auto">
         <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">
           / DETALLES
@@ -1055,7 +1116,7 @@
             <p class="font-serif text-3xl mb-2 infra-title text-accent">Licencia</p>
             <p class="mb-8">
               <span class="font-serif text-5xl">6.500 €</span>
-              <span class="font-mono text-xs text-muted ml-2">pago único · + IVA</span>
+              <span class="font-mono text-xs text-muted ml-2 whitespace-nowrap">pago único · + IVA</span>
             </p>
             <ul class="space-y-3 text-sm text-muted font-light leading-relaxed mb-10">
               <li class="flex gap-3">
@@ -1094,7 +1155,7 @@
             <p class="font-serif text-3xl mb-2 infra-title text-muted">Cloud</p>
             <p class="mb-8">
               <span class="font-serif text-5xl text-muted">—</span>
-              <span class="font-mono text-xs text-muted ml-2">suscripción mensual</span>
+              <span class="font-mono text-xs text-muted ml-2 whitespace-nowrap">suscripción mensual</span>
             </p>
             <ul class="space-y-3 text-sm text-muted font-light leading-relaxed mb-10">
               <li class="flex gap-3">
@@ -1183,6 +1244,35 @@
       document
         .querySelectorAll(".fade-in")
         .forEach((el) => observer.observe(el));
+
+      // Sub-nav: highlight the section currently under the header
+      const subnav = document.querySelector(".subnav");
+      const navLinks = [...subnav.querySelectorAll("a")];
+      const navSections = navLinks.map((a) =>
+        document.querySelector(a.getAttribute("href")),
+      );
+      let activeLink = null;
+      const updateSubnav = () => {
+        let current = null;
+        navSections.forEach((s, i) => {
+          if (s.getBoundingClientRect().top <= 120) current = navLinks[i];
+        });
+        // Short last section: mark it once the page can't scroll further
+        if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2)
+          current = navLinks[navLinks.length - 1];
+        if (current === activeLink) return;
+        activeLink?.classList.remove("active");
+        current?.classList.add("active");
+        activeLink = current;
+        if (current) {
+          subnav.scrollTo({
+            left: current.offsetLeft - (subnav.clientWidth - current.offsetWidth) / 2,
+            behavior: "smooth",
+          });
+        }
+      };
+      addEventListener("scroll", updateSubnav, { passive: true });
+      updateSubnav();
     </script>
   </body>
 </html>

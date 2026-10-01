@@ -78,6 +78,21 @@
         text-shadow: 0 0 40px currentColor;
       }
 
+      /* Section sub-nav */
+      section[id] {
+        scroll-margin-top: 100px;
+      }
+      .subnav {
+        scrollbar-width: none;
+      }
+      .subnav::-webkit-scrollbar {
+        display: none;
+      }
+      .subnav a.active {
+        color: #0369a1;
+        border-color: #0369a1;
+      }
+
       ::selection {
         background: #0369a1;
         color: #f5f3ee;
@@ -148,10 +163,46 @@
           >EN</a
         >
       </div>
+      <div class="border-t border-faint">
+        <div
+          class="subnav max-w-5xl mx-auto px-6 flex gap-6 overflow-x-auto font-mono text-xs tracking-widest text-muted uppercase"
+        >
+          <a
+            href="#why"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Por qué</a
+          >
+          <a
+            href="#printers"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Imprentas</a
+          >
+          <a
+            href="#how"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Cómo funciona</a
+          >
+          <a
+            href="#check"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Revisión</a
+          >
+          <a
+            href="#details"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Detalles</a
+          >
+          <a
+            href="#start"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Empieza</a
+          >
+        </div>
+      </div>
     </nav>
 
     <!-- Hero -->
-    <section class="min-h-screen flex flex-col justify-center px-6 pt-24 pb-16">
+    <section class="min-h-screen flex flex-col justify-center px-6 pt-32 pb-16">
       <div
         class="max-w-5xl mx-auto w-full grid lg:grid-cols-5 gap-12 lg:gap-16 items-center"
       >
@@ -428,7 +479,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- Problem -->
-    <section class="py-24 px-6">
+    <section id="why" class="py-24 px-6">
       <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
         <div class="fade-in">
           <p class="font-mono text-xs tracking-widest text-muted mb-8">
@@ -462,7 +513,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- Printers -->
-    <section class="py-24 px-6">
+    <section id="printers" class="py-24 px-6">
       <div class="max-w-5xl mx-auto">
         <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
           <div class="fade-in">
@@ -593,7 +644,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- Print check -->
-    <section class="py-24 px-6">
+    <section id="check" class="py-24 px-6">
       <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
         <div class="fade-in">
           <p class="font-mono text-xs tracking-widest text-muted mb-8">
@@ -666,7 +717,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- Details -->
-    <section class="py-24 px-6">
+    <section id="details" class="py-24 px-6">
       <div class="max-w-5xl mx-auto">
         <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">
           / DETALLES
@@ -722,7 +773,7 @@
     <hr class="ruling max-w-5xl mx-auto px-6" />
 
     <!-- CTA -->
-    <section class="py-24 px-6">
+    <section id="start" class="py-24 px-6">
       <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-end">
         <div class="fade-in">
           <p class="font-mono text-xs tracking-widest text-muted mb-8">
@@ -786,6 +837,34 @@
       document
         .querySelectorAll(".fade-in")
         .forEach((el) => observer.observe(el));
+      // Sub-nav: highlight the section currently under the header
+      const subnav = document.querySelector(".subnav");
+      const navLinks = [...subnav.querySelectorAll("a")];
+      const navSections = navLinks.map((a) =>
+        document.querySelector(a.getAttribute("href")),
+      );
+      let activeLink = null;
+      const updateSubnav = () => {
+        let current = null;
+        navSections.forEach((s, i) => {
+          if (s.getBoundingClientRect().top <= 120) current = navLinks[i];
+        });
+        // Short last section: mark it once the page can't scroll further
+        if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2)
+          current = navLinks[navLinks.length - 1];
+        if (current === activeLink) return;
+        activeLink?.classList.remove("active");
+        current?.classList.add("active");
+        activeLink = current;
+        if (current) {
+          subnav.scrollTo({
+            left: current.offsetLeft - (subnav.clientWidth - current.offsetWidth) / 2,
+            behavior: "smooth",
+          });
+        }
+      };
+      addEventListener("scroll", updateSubnav, { passive: true });
+      updateSubnav();
     </script>
   </body>
 </html>
