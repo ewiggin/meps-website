@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://meps.software/</loc>
+    <lastmod>2026-10-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://meps.software/es/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/" />
+  </url>
+  <url>
+    <loc>https://meps.software/es/</loc>
+    <lastmod>2026-10-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://meps.software/es/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/" />
+  </url>
+  <url>
+    <loc>https://meps.software/bridge-dollar/</loc>
+    <lastmod>2026-10-05</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/bridge-dollar/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://meps.software/es/bridge-dollar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/bridge-dollar/" />
+  </url>
+  <url>
+    <loc>https://meps.software/es/bridge-dollar/</loc>
+    <lastmod>2026-10-05</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/bridge-dollar/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://meps.software/es/bridge-dollar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/bridge-dollar/" />
+  </url>
+  <url>
+    <loc>https://meps.software/coverbook/</loc>
+    <lastmod>2026-10-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/coverbook/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://meps.software/es/coverbook/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/coverbook/" />
+  </url>
+  <url>
+    <loc>https://meps.software/es/coverbook/</loc>
+    <lastmod>2026-10-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/coverbook/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://meps.software/es/coverbook/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/coverbook/" />
+  </url>
+  <url>
+    <loc>https://meps.software/privacy/</loc>
+    <lastmod>2026-10-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/privacy/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://meps.software/es/privacidad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/privacy/" />
+  </url>
+  <url>
+    <loc>https://meps.software/es/privacidad/</loc>
+    <lastmod>2026-10-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/privacy/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://meps.software/es/privacidad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/privacy/" />
+  </url>
+</urlset>
