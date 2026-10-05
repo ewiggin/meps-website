@@ -671,6 +671,7 @@
           });
           if (!res.ok) throw new Error("Request failed");
           contactForm.reset();
+          window.goatcounter?.count({ path: "contact-form-sent", title: "Contact form sent", event: true });
           contactStatus.textContent = "Gracias — nos pondremos en contacto.";
         } catch {
           contactStatus.textContent =
@@ -682,5 +683,10 @@
     </script>
 
     <script src="../hero-gol.js"></script>
+    <script
+      data-goatcounter="https://meps.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"
+    ></script>
   </body>
 </html>
