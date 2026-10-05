@@ -173,6 +173,11 @@
             >Why</a
           >
           <a
+            href="#use-cases"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Who it's for</a
+          >
+          <a
             href="#features"
             class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
             >Features</a
@@ -521,6 +526,146 @@
             provider; it handles the checkout, confirms the payment and records
             every sale in one place.
           </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Use cases -->
+    <section id="use-cases" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / WHO IT'S FOR
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+              For anyone taking payments from many places at once.
+            </h2>
+          </div>
+          <p
+            class="fade-in text-muted font-light leading-relaxed"
+            style="transition-delay: 0.15s"
+          >
+            Bridge Dollar fits when payments come in from several stores, brands, clients or countries, and every new point of sale adds another integration to maintain and another dashboard to check.
+          </p>
+        </div>
+
+        <div
+          class="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-faint border border-faint"
+        >
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="border-top: 2px solid #047857"
+          >
+            <p class="font-mono text-xs tracking-widest text-muted mb-6">
+              01 · MULTI-BRAND GROUPS
+            </p>
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Several brands, one view of sales
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed mb-8">
+              A group with three brands, several web shops and a dozen locations. Each store takes payments its own way, and closing the month means downloading reports from five different dashboards.
+            </p>
+            <p
+              class="mt-auto pt-6 border-t border-faint font-mono text-xs tracking-widest text-muted mb-4"
+            >
+              WITH BRIDGE DOLLAR
+            </p>
+            <ul class="space-y-3 text-sm text-muted font-light leading-relaxed">
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Every brand's web shops and apps integrate once, against the same API.</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Opening a new location means adding a store and assigning it a gateway that already exists.</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Management sees the whole group's sales — by brand, location or provider — in real time.</span>
+              </li>
+            </ul>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.1s; border-top: 2px solid #047857"
+          >
+            <p class="font-mono text-xs tracking-widest text-muted mb-6">
+              02 · AGENCIES AND STUDIOS
+            </p>
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              One payment integration for all your clients
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed mb-8">
+              A studio that builds and maintains shops for several clients redoes payments on every project: another provider, other webhooks, other edge cases to debug.
+            </p>
+            <p
+              class="mt-auto pt-6 border-t border-faint font-mono text-xs tracking-widest text-muted mb-4"
+            >
+              WITH BRIDGE DOLLAR
+            </p>
+            <ul class="space-y-3 text-sm text-muted font-light leading-relaxed">
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Each client is a business, with its own stores, gateways and credentials.</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Your projects always talk to the same API, documented in OpenAPI, with Stripe-style signed webhooks.</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>“Check connection” and test payments catch a broken setup before it goes live.</span>
+              </li>
+            </ul>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.2s; border-top: 2px solid #047857"
+          >
+            <p class="font-mono text-xs tracking-widest text-muted mb-6">
+              03 · SPAIN AND LATIN AMERICA
+            </p>
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Each market, with its local payment method
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed mb-8">
+              A company selling in Spain and Latin America needs Redsys and Bizum for some customers and Mercado Pago for others, and ends up maintaining two separate payment stacks.
+            </p>
+            <p
+              class="mt-auto pt-6 border-t border-faint font-mono text-xs tracking-widest text-muted mb-4"
+            >
+              WITH BRIDGE DOLLAR
+            </p>
+            <ul class="space-y-3 text-sm text-muted font-light leading-relaxed">
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Each store charges through its market's gateway: Redsys and Bizum, Mercado Pago, Stripe or PayPal.</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>Store code doesn't change from one country to the next: the same call and the same <code class="font-mono text-xs">sale.completed</code>.</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="font-mono text-accent">✓</span><span>All sales together, filterable by currency, provider or store.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class="mt-12 grid md:grid-cols-4 gap-6 md:gap-12 border border-dashed border-[#c8c5bc] p-6 md:p-8 fade-in"
+        >
+          <p class="font-mono text-xs tracking-widest text-muted">
+            YOU MIGHT NOT NEED IT IF…
+          </p>
+          <ul
+            class="md:col-span-3 grid sm:grid-cols-3 gap-6 text-sm text-muted font-light leading-relaxed"
+          >
+            <li class="flex gap-3">
+              <span class="font-mono text-muted">×</span><span>You have a single store and a single provider: its direct integration is enough.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="font-mono text-muted">×</span><span>You're looking for a card terminal or in-person POS: Bridge Dollar handles online payments on the provider's page.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="font-mono text-muted">×</span><span>You don't want to run your own servers: the <a href="#pricing" class="text-ink underline decoration-faint underline-offset-4 hover:text-accent">Cloud</a> version is coming soon.</span>
+            </li>
+          </ul>
         </div>
       </div>
     </section>
