@@ -166,7 +166,7 @@
         border-bottom: 2px solid var(--pc);
       }
       @media (min-width: 768px) {
-        project-card:nth-last-child(2) > * {
+        project-card:nth-last-child(-n + 3) > * {
           border-bottom: 2px solid var(--pc);
         }
       }
@@ -529,7 +529,14 @@
             color="#7c3aed"
           ></project-card>
           <project-card
-            class="md:col-span-2"
+            name="instantDB"
+            href="/instantdb/"
+            status="active"
+            label="API"
+            description="Self-hosted tool for companies: upload a CSV or Excel file and get a database with a complete REST API in seconds."
+            color="#b45309"
+          ></project-card>
+          <project-card
             name="More coming"
             status="soon"
             description="Side projects for non-profits are in the works. If you run an organisation and have a problem worth solving, let's talk."

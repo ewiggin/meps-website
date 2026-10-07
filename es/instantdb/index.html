@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>instantDB · Base de datos y API REST desde una hoja de cálculo · MEPS</title>
+    <meta
+      name="description"
+      content="Herramienta autoalojada para empresas: sube un CSV o un Excel y obtén una base de datos con una API REST completa en segundos, con filtros, joins, webhooks, formularios y gráficos incluidos."
+    />
+    <link rel="alternate" hreflang="en" href="/instantdb/" />
+    <link rel="icon" href="../../favicon.ico" sizes="32x32" />
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ["DM Serif Display", "Georgia", "serif"],
+              mono: ["DM Mono", "monospace"],
+              sans: ["DM Sans", "system-ui", "sans-serif"],
+            },
+            colors: {
+              ink: "#1a1a18",
+              muted: "#6b6b65",
+              faint: "#e8e6df",
+              warm: "#f5f3ee",
+              accent: "#b45309",
+            },
+            letterSpacing: {
+              widest: "0.2em",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: #f5f3ee;
+      }
+
+      .fade-in {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      hr.ruling {
+        border: none;
+        border-top: 1px solid #c8c5bc;
+      }
+
+      .infra-card {
+        transition:
+          background 0.25s ease,
+          transform 0.25s ease;
+      }
+      .infra-card:hover {
+        background: #fff;
+        transform: translateY(-2px);
+      }
+      .infra-card:hover .infra-title {
+        text-shadow: 0 0 40px currentColor;
+      }
+
+      /* Section sub-nav */
+      section[id] {
+        scroll-margin-top: 100px;
+      }
+      .subnav {
+        scrollbar-width: none;
+      }
+      .subnav::-webkit-scrollbar {
+        display: none;
+      }
+      .subnav a.active {
+        color: #b45309;
+        border-color: #b45309;
+      }
+
+      ::selection {
+        background: #b45309;
+        color: #f5f3ee;
+      }
+
+      /* Terminal mock-ups */
+      .term {
+        background: #1a1a18;
+        color: #d6d3c9;
+      }
+      .t-dim {
+        color: #7d7b72;
+      }
+      .t-on {
+        color: #4ade80;
+      }
+      .t-acc {
+        color: #fbbf24;
+      }
+      .t-key {
+        color: #fcd34d;
+      }
+      .t-str {
+        color: #a3e635;
+      }
+      .cursor {
+        animation: blink 1s step-end infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* Response lines appear one by one once visible */
+      .t-line {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .visible .t-line {
+        opacity: 1;
+      }
+
+      /* Spreadsheet mock-up */
+      .sheet td,
+      .sheet th {
+        border: 1px solid #e8e6df;
+        padding: 0.35rem 0.6rem;
+        white-space: nowrap;
+      }
+      .sheet th {
+        background: #f5f3ee;
+        color: #6b6b65;
+        font-weight: 400;
+      }
+    </style>
+  </head>
+  <body class="font-sans text-ink antialiased">
+    <!-- Nav -->
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 bg-warm/80 backdrop-blur-sm border-b border-faint"
+    >
+      <div
+        class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between"
+      >
+        <span class="font-mono text-sm tracking-widest font-light">
+          <a href="/"
+            ><span style="color: #c2410c">M</span
+            ><span style="color: #7c3aed">E</span
+            ><span style="color: #0369a1">P</span
+            ><span style="color: #2d5a27">S</span></a
+          ><span class="text-muted"> / </span
+          ><span class="text-accent">INSTANTDB</span>
+        </span>
+        <a
+          href="/instantdb/"
+          hreflang="en"
+          class="font-mono text-xs tracking-widest text-muted hover:text-accent transition-colors"
+          >EN</a
+        >
+      </div>
+      <div class="border-t border-faint">
+        <div
+          class="subnav max-w-5xl mx-auto px-6 flex gap-6 overflow-x-auto font-mono text-xs tracking-widest text-muted uppercase"
+        >
+          <a
+            href="#why"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Por qué</a
+          >
+          <a
+            href="#how"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Cómo funciona</a
+          >
+          <a
+            href="#api"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >API</a
+          >
+          <a
+            href="#features"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Funciones</a
+          >
+          <a
+            href="#details"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Detalles</a
+          >
+          <a
+            href="#start"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Empezar</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="min-h-screen flex flex-col justify-center px-6 pt-32 pb-16">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-end mb-14">
+          <div>
+            <p
+              class="font-mono text-xs tracking-widest text-muted mb-8 fade-in"
+            >
+              / PRODUCTO · AUTOALOJADO · PARA EQUIPOS
+            </p>
+            <h1
+              class="font-serif text-5xl md:text-7xl leading-none fade-in"
+              style="transition-delay: 0.1s"
+            >
+              instant<span class="text-accent">DB</span><span class="text-muted"
+                >.</span
+              >
+            </h1>
+          </div>
+          <div class="fade-in" style="transition-delay: 0.2s">
+            <p
+              class="text-base md:text-lg text-muted font-light leading-relaxed"
+            >
+              Sube un CSV o un Excel y obtén en segundos una base de datos con
+              una API REST completa. Sin diseñar esquemas, sin programar un
+              backend y sin esperar al equipo de desarrollo.
+            </p>
+            <div class="mt-8 flex flex-wrap items-center gap-4">
+              <a
+                href="/es/#contact"
+                data-goatcounter-click="instantdb-contact-hero"
+                class="font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+                >HABLEMOS →</a
+              >
+             <a href="https://instantdb-demo.meps.software" data-goatcounter-click="instantdb-demo-hero" target="_blank" rel="noopener" class="font-mono text-xs tracking-widest text-accent border border-accent px-5 py-3 hover:bg-accent hover:text-warm transition-colors">VER DEMO ↗</a>            </div>
+             
+            </div>
+            <p class="mt-6 font-mono text-xs text-muted">
+              En tus servidores · SQLite o PostgreSQL · OpenAPI incluido
+            </p>
+          </div>
+        </div>
+
+        <!-- Spreadsheet → API mock-up -->
+        <figure class="fade-in" style="transition-delay: 0.3s">
+          <div
+            class="grid md:grid-cols-[1fr_auto_1.15fr] gap-4 md:gap-6 items-center"
+          >
+            <div
+              class="bg-white border border-faint shadow-xl overflow-hidden"
+              role="img"
+              aria-label="Una hoja de cálculo llamada clientes.xlsx con las columnas nombre, ciudad y plan"
+            >
+              <div
+                class="flex items-center justify-between px-4 py-2.5 border-b border-faint font-mono text-xs"
+              >
+                <span>clientes.xlsx</span>
+                <span class="text-muted">1.284 filas</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="sheet w-full font-mono text-[11px] md:text-xs text-left">
+                  <thead>
+                    <tr>
+                      <th class="w-8"></th>
+                      <th>nombre</th>
+                      <th>ciudad</th>
+                      <th>plan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>1</th>
+                      <td>Northwind S.L.</td>
+                      <td>Madrid</td>
+                      <td>pro</td>
+                    </tr>
+                    <tr>
+                      <th>2</th>
+                      <td>Conservas Acme</td>
+                      <td>Lisboa</td>
+                      <td>básico</td>
+                    </tr>
+                    <tr>
+                      <th>3</th>
+                      <td>Hoja Verde</td>
+                      <td>Madrid</td>
+                      <td>pro</td>
+                    </tr>
+                    <tr>
+                      <th>4</th>
+                      <td>Puerto Azul</td>
+                      <td>Porto</td>
+                      <td>pro</td>
+                    </tr>
+                    <tr>
+                      <th>5</th>
+                      <td class="text-muted">…</td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <p
+              class="font-mono text-xs tracking-widest text-accent text-center"
+              aria-hidden="true"
+            >
+              <span class="hidden md:inline">SUBIR →</span
+              ><span class="md:hidden">↓ SUBIR</span>
+            </p>
+
+            <div
+              class="term rounded-lg shadow-2xl overflow-hidden font-mono text-[11px] md:text-xs leading-relaxed"
+              role="img"
+              aria-label="Una terminal que consulta GET /data/clientes?ciudad=Madrid y recibe las filas que coinciden en JSON"
+            >
+              <div
+                class="flex items-center gap-2 px-4 py-2.5 border-b"
+                style="border-color: #2e2d29"
+              >
+                <span class="w-2.5 h-2.5 rounded-full" style="background: #45443f"></span>
+                <span class="w-2.5 h-2.5 rounded-full" style="background: #45443f"></span>
+                <span class="w-2.5 h-2.5 rounded-full" style="background: #45443f"></span>
+                <span class="ml-3 t-dim">~ curl</span>
+              </div>
+              <div class="p-4 md:p-5 overflow-x-auto whitespace-pre"><p><span class="t-dim">$</span> curl api.example.com/data/clientes<span class="t-acc">?ciudad=Madrid</span></p><p class="t-line" style="transition-delay: 0.8s">{</p><p class="t-line" style="transition-delay: 0.9s">  <span class="t-key">"total"</span>: 312, <span class="t-key">"page"</span>: 1, <span class="t-key">"limit"</span>: 20,</p><p class="t-line" style="transition-delay: 1s">  <span class="t-key">"data"</span>: [</p><p class="t-line" style="transition-delay: 1.2s">    { <span class="t-key">"nombre"</span>: <span class="t-str">"Northwind S.L."</span>, <span class="t-key">"plan"</span>: <span class="t-str">"pro"</span> },</p><p class="t-line" style="transition-delay: 1.4s">    { <span class="t-key">"nombre"</span>: <span class="t-str">"Hoja Verde"</span>, <span class="t-key">"plan"</span>: <span class="t-str">"pro"</span> },</p><p class="t-line" style="transition-delay: 1.6s">    <span class="t-dim">…</span></p><p class="t-line" style="transition-delay: 1.7s">  ]</p><p class="t-line" style="transition-delay: 1.8s">}</p><p class="t-line" style="transition-delay: 2.1s"><span class="t-dim">$</span> <span class="cursor">█</span></p></div>
+            </div>
+          </div>
+          <figcaption class="mt-4 font-mono text-xs text-muted">
+            Cada archivo se convierte en una tabla, y cada tabla tiene sus propios endpoints.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Problem -->
+    <section id="why" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / POR QUÉ
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+            Tus datos viven en hojas de cálculo. Tus aplicaciones necesitan una API.
+          </h2>
+        </div>
+
+        <div
+          class="fade-in space-y-6 text-muted font-light leading-relaxed"
+          style="transition-delay: 0.15s"
+        >
+          <p>
+            La lista de precios, el registro de clientes, el inventario, las
+            ventas del año pasado. Toda empresa tiene datos en Excel que una
+            web, una herramienta interna o una integración necesitan leer, y
+            convertirlos en un backend de verdad suele suponer una base de
+            datos, un esquema, una API y semanas en la cola de desarrollo.
+          </p>
+          <p>
+            instantDB se salta todo eso. Arrastra el archivo y obtienes una
+            tabla con sus columnas detectadas, endpoints para leer, filtrar,
+            insertar, actualizar y borrar filas, y documentación interactiva
+            para quien tenga que usarla. Cuando cambien los datos, vuelve a
+            subirlo.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- How it works -->
+    <section id="how" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / CÓMO FUNCIONA
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+              Del archivo al endpoint en tres pasos.
+            </h2>
+          </div>
+          <p
+            class="fade-in text-muted font-light leading-relaxed"
+            style="transition-delay: 0.15s"
+          >
+            Todo ocurre en una interfaz web: sin línea de comandos y sin SQL.
+            Los desarrolladores tienen una API REST estándar y una
+            especificación OpenAPI; el resto del equipo, una tabla que puede
+            consultar.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-px bg-faint border border-faint">
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="border-top: 2px solid #b45309"
+          >
+            <p class="font-mono text-xs text-muted mb-6">01</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #b45309"
+            >
+              Sube
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Arrastra un CSV o un Excel a la página. Elige una hoja o importa
+              cada hoja como un dataset independiente. Admite CSV con cualquier
+              separador.
+            </p>
+          </div>
+
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.1s; border-top: 2px solid #0369a1"
+          >
+            <p class="font-mono text-xs text-muted mb-6">02</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #0369a1"
+            >
+              Obtén una tabla
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Las columnas se detectan y se nombran solas, y cada fila recibe
+              un id. Recibes un código de propiedad que protege el dataset
+              frente a cambios.
+            </p>
+          </div>
+
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.2s; border-top: 2px solid #2d5a27"
+          >
+            <p class="font-mono text-xs text-muted mb-6">03</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #2d5a27"
+            >
+              Usa la API
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Los endpoints funcionan al instante y están documentados en
+              Swagger UI. Conecta tu web, tu app, tu hoja de cálculo o tu
+              herramienta de automatización.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- API -->
+    <section id="api" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / API
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug mb-6">
+            Una API REST de verdad, no una exportación.
+          </h2>
+          <p class="text-muted font-light leading-relaxed mb-8">
+            Leer y buscar es libre; escribir exige el código de propiedad del
+            dataset, así que un endpoint público de lectura nunca se convierte
+            en uno público de escritura. El límite de peticiones viene activado
+            por defecto.
+          </p>
+          <dl
+            class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm font-mono"
+          >
+            <dt class="text-accent">GET</dt>
+            <dd class="text-muted">/data/:dataset?columna=valor&amp;page=2</dd>
+            <dt class="text-accent">GET</dt>
+            <dd class="text-muted">/data/:dataset/:id</dd>
+            <dt class="text-accent">POST</dt>
+            <dd class="text-muted">/data/:dataset</dd>
+            <dt class="text-accent">PUT · PATCH</dt>
+            <dd class="text-muted">/data/:dataset/:id</dd>
+            <dt class="text-accent">DELETE</dt>
+            <dd class="text-muted">/data/:dataset/:id</dd>
+            <dt class="text-accent">GET</dt>
+            <dd class="text-muted">/data/:dataset/stats</dd>
+            <dt class="text-accent">POST</dt>
+            <dd class="text-muted">/data/join</dd>
+          </dl>
+        </div>
+
+        <div
+          class="fade-in term rounded-lg p-5 md:p-6 font-mono text-xs leading-relaxed shadow-xl overflow-x-auto whitespace-pre"
+          style="transition-delay: 0.15s"
+        ><p class="t-dim"># añadir un cliente</p><p><span class="t-dim">$</span> curl -X POST api.example.com/data/clientes \</p><p>    -H <span class="t-str">"Content-Type: application/json"</span> \</p><p>    -d <span class="t-str">'{</span></p><p class="t-str">      "ownershipCode": "550e8400-…",</p><p class="t-str">      "data": { "nombre": "Río Claro",</p><p class="t-str">                "ciudad": "Sevilla", "plan": "pro" }</p><p class="t-str">    }'</p><p class="mt-4 t-dim"># cada webhook de este dataset recibe</p><p>{ <span class="t-key">"event"</span>: <span class="t-str">"row.insert"</span>, <span class="t-key">"dataset"</span>: <span class="t-str">"clientes"</span>, … }</p><p class="mt-4 t-dim"># la especificación completa, para generadores de código</p><p><span class="t-dim">$</span> curl api.example.com/api-json</p></div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Features -->
+    <section id="features" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / FUNCIONES
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+              Más que un CRUD.
+            </h2>
+          </div>
+          <p
+            class="fade-in text-muted font-light leading-relaxed"
+            style="transition-delay: 0.15s"
+          >
+            Con los datos dentro, instantDB te da las piezas que normalmente
+            cuestan un sprint cada una: combinar tablas, reaccionar a cambios,
+            recoger filas nuevas y ver los números.
+          </p>
+        </div>
+
+        <ol class="grid sm:grid-cols-2 md:grid-cols-4 gap-12 md:gap-8">
+          <li class="fade-in">
+            <p class="font-mono text-xs text-accent mb-4">JOINS</p>
+            <p class="font-serif text-2xl mb-3">Combina datasets</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Un editor visual para unir varias tablas por sus columnas,
+              agrupar y ordenar el resultado, y guardarlo con un nombre para
+              abrirlo otra vez cuando quieras.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.1s">
+            <p class="font-mono text-xs text-accent mb-4">WEBHOOKS</p>
+            <p class="font-serif text-2xl mb-3">Reacciona a cambios</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Avisa a tus sistemas cuando se insertan, actualizan o borran
+              filas, o cuando se sube un dataset. Con registro de entregas y
+              envíos de prueba.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.2s">
+            <p class="font-mono text-xs text-accent mb-4">FORMULARIOS</p>
+            <p class="font-serif text-2xl mb-3">Recoge filas</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Crea un formulario para cualquier dataset, elige qué campos
+              mostrar y compártelo. Cada envío es una fila nueva, ya sea
+              público o privado.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.3s">
+            <p class="font-mono text-xs text-accent mb-4">GRÁFICOS</p>
+            <p class="font-serif text-2xl mb-3">Ve los números</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Grafica cualquier dataset o resultado de un join, y consulta
+              estadísticas por columna sin volver a exportar nada a Excel.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Details -->
+    <section id="details" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">
+          / DETALLES
+        </p>
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-px bg-faint border border-faint"
+        >
+          <div class="infra-card bg-warm p-8 fade-in">
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Tus servidores
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              instantDB se instala en tu infraestructura. Tus datos nunca pasan
+              por la nube de un tercero.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.1s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              SQLite o Postgres
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Un único archivo SQLite para empezar, o conéctalo a tu
+              PostgreSQL cuando crezcan los datos.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.2s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Documentada
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Swagger UI y una especificación OpenAPI, listas para generar un
+              cliente tipado en el lenguaje que use tu equipo.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.3s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Escritura protegida
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Los cambios en filas, webhooks y formularios exigen el código de
+              propiedad del dataset, y todos los endpoints limitan las
+              peticiones.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- CTA -->
+    <section id="start" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-end">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / EMPEZAR
+          </p>
+          <h2 class="font-serif text-4xl md:text-5xl leading-tight">
+            Tu hoja de cálculo,<br />una API antes de comer.
+          </h2>
+        </div>
+        <div class="fade-in space-y-8" style="transition-delay: 0.15s">
+          <p class="text-muted font-light leading-relaxed">
+            instantDB se licencia para funcionar en tu propia infraestructura.
+            Lo desarrolla y mantiene MEPS: cuéntanos qué datos necesitas abrir
+            y lo ponemos en marcha contigo. Muy pronto habrá una demo pública.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a
+              href="/es/#contact"
+              data-goatcounter-click="instantdb-contact-cta"
+              class="font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+              >HABLEMOS →</a
+            >
+            <span
+              class="font-mono text-xs tracking-widest text-muted border border-faint px-5 py-3 cursor-default"
+              >DEMO · PRONTO</span
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-faint py-8 px-6">
+      <div
+        class="max-w-5xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+      >
+        <a href="/" class="font-mono text-xs text-muted tracking-widest"
+          ><span style="color: #c2410c">M</span
+          ><span style="color: #7c3aed">E</span
+          ><span style="color: #0369a1">P</span
+          ><span style="color: #2d5a27">S</span> · meps.software</a
+        >
+        <span class="font-mono text-xs text-muted"
+          >Excel es una marca registrada de Microsoft Corporation.</span
+        >
+      </div>
+    </footer>
+
+    <script>
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("visible");
+              observer.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+
+      document
+        .querySelectorAll(".fade-in")
+        .forEach((el) => observer.observe(el));
+      // Sub-nav: highlight the section currently under the header
+      const subnav = document.querySelector(".subnav");
+      const navLinks = [...subnav.querySelectorAll("a")];
+      const navSections = navLinks.map((a) =>
+        document.querySelector(a.getAttribute("href")),
+      );
+      let activeLink = null;
+      const updateSubnav = () => {
+        let current = null;
+        navSections.forEach((s, i) => {
+          if (s.getBoundingClientRect().top <= 120) current = navLinks[i];
+        });
+        // Short last section: mark it once the page can't scroll further
+        if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2)
+          current = navLinks[navLinks.length - 1];
+        if (current === activeLink) return;
+        activeLink?.classList.remove("active");
+        current?.classList.add("active");
+        activeLink = current;
+        if (current) {
+          subnav.scrollTo({
+            left: current.offsetLeft - (subnav.clientWidth - current.offsetWidth) / 2,
+            behavior: "smooth",
+          });
+        }
+      };
+      addEventListener("scroll", updateSubnav, { passive: true });
+      updateSubnav();
+    </script>
+    <script
+      data-goatcounter="https://meps.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"
+    ></script>
+  </body>
+</html>

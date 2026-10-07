@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>instantDB · Database and REST API from a spreadsheet · MEPS</title>
+    <meta
+      name="description"
+      content="Self-hosted tool for companies: upload a CSV or Excel file and get a database with a complete REST API in seconds — filters, joins, webhooks, forms and charts included."
+    />
+    <link rel="alternate" hreflang="es" href="/es/instantdb/" />
+    <link rel="icon" href="../favicon.ico" sizes="32x32" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ["DM Serif Display", "Georgia", "serif"],
+              mono: ["DM Mono", "monospace"],
+              sans: ["DM Sans", "system-ui", "sans-serif"],
+            },
+            colors: {
+              ink: "#1a1a18",
+              muted: "#6b6b65",
+              faint: "#e8e6df",
+              warm: "#f5f3ee",
+              accent: "#b45309",
+            },
+            letterSpacing: {
+              widest: "0.2em",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: #f5f3ee;
+      }
+
+      .fade-in {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      hr.ruling {
+        border: none;
+        border-top: 1px solid #c8c5bc;
+      }
+
+      .infra-card {
+        transition:
+          background 0.25s ease,
+          transform 0.25s ease;
+      }
+      .infra-card:hover {
+        background: #fff;
+        transform: translateY(-2px);
+      }
+      .infra-card:hover .infra-title {
+        text-shadow: 0 0 40px currentColor;
+      }
+
+      /* Section sub-nav */
+      section[id] {
+        scroll-margin-top: 100px;
+      }
+      .subnav {
+        scrollbar-width: none;
+      }
+      .subnav::-webkit-scrollbar {
+        display: none;
+      }
+      .subnav a.active {
+        color: #b45309;
+        border-color: #b45309;
+      }
+
+      ::selection {
+        background: #b45309;
+        color: #f5f3ee;
+      }
+
+      /* Terminal mock-ups */
+      .term {
+        background: #1a1a18;
+        color: #d6d3c9;
+      }
+      .t-dim {
+        color: #7d7b72;
+      }
+      .t-on {
+        color: #4ade80;
+      }
+      .t-acc {
+        color: #fbbf24;
+      }
+      .t-key {
+        color: #fcd34d;
+      }
+      .t-str {
+        color: #a3e635;
+      }
+      .cursor {
+        animation: blink 1s step-end infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* Response lines appear one by one once visible */
+      .t-line {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .visible .t-line {
+        opacity: 1;
+      }
+
+      /* Spreadsheet mock-up */
+      .sheet td,
+      .sheet th {
+        border: 1px solid #e8e6df;
+        padding: 0.35rem 0.6rem;
+        white-space: nowrap;
+      }
+      .sheet th {
+        background: #f5f3ee;
+        color: #6b6b65;
+        font-weight: 400;
+      }
+    </style>
+  </head>
+  <body class="font-sans text-ink antialiased">
+    <!-- Nav -->
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 bg-warm/80 backdrop-blur-sm border-b border-faint"
+    >
+      <div
+        class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between"
+      >
+        <span class="font-mono text-sm tracking-widest font-light">
+          <a href="/"
+            ><span style="color: #c2410c">M</span
+            ><span style="color: #7c3aed">E</span
+            ><span style="color: #0369a1">P</span
+            ><span style="color: #2d5a27">S</span></a
+          ><span class="text-muted"> / </span
+          ><span class="text-accent">INSTANTDB</span>
+        </span>
+        <a
+          href="/es/instantdb/"
+          hreflang="es"
+          class="font-mono text-xs tracking-widest text-muted hover:text-accent transition-colors"
+          >ES</a
+        >
+      </div>
+      <div class="border-t border-faint">
+        <div
+          class="subnav max-w-5xl mx-auto px-6 flex gap-6 overflow-x-auto font-mono text-xs tracking-widest text-muted uppercase"
+        >
+          <a
+            href="#why"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Why</a
+          >
+          <a
+            href="#how"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >How it works</a
+          >
+          <a
+            href="#api"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >API</a
+          >
+          <a
+            href="#features"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Features</a
+          >
+          <a
+            href="#details"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Details</a
+          >
+          <a
+            href="#start"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Start</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="min-h-screen flex flex-col justify-center px-6 pt-32 pb-16">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-end mb-14">
+          <div>
+            <p
+              class="font-mono text-xs tracking-widest text-muted mb-8 fade-in"
+            >
+              / PRODUCT · SELF-HOSTED · FOR TEAMS
+            </p>
+            <h1
+              class="font-serif text-5xl md:text-7xl leading-none fade-in"
+              style="transition-delay: 0.1s"
+            >
+              instant<span class="text-accent">DB</span><span class="text-muted"
+                >.</span
+              >
+            </h1>
+          </div>
+          <div class="fade-in" style="transition-delay: 0.2s">
+            <p
+              class="text-base md:text-lg text-muted font-light leading-relaxed"
+            >
+              Upload a CSV or Excel file and get a database with a complete
+              REST API over it in seconds. No schema to design, no backend to
+              write, no waiting on the dev team.
+            </p>
+            <div class="mt-8 flex flex-wrap items-center gap-4">
+              <a
+                href="/#contact"
+                data-goatcounter-click="instantdb-contact-hero"
+                class="font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+                >TALK TO US →</a
+              >
+             <a href="https://instantdb-demo.meps.software" data-goatcounter-click="instantdb-demo-hero" target="_blank" rel="noopener" class="font-mono text-xs tracking-widest text-accent border border-accent px-5 py-3 hover:bg-accent hover:text-warm transition-colors">LIVE DEMO ↗</a>            </div>
+            <p class="mt-6 font-mono text-xs text-muted">
+              Runs on your servers · SQLite or PostgreSQL · OpenAPI included
+            </p>
+          </div>
+        </div>
+
+        <!-- Spreadsheet → API mock-up -->
+        <figure class="fade-in" style="transition-delay: 0.3s">
+          <div
+            class="grid md:grid-cols-[1fr_auto_1.15fr] gap-4 md:gap-6 items-center"
+          >
+            <div
+              class="bg-white border border-faint shadow-xl overflow-hidden"
+              role="img"
+              aria-label="A spreadsheet called customers.xlsx with columns name, city and plan"
+            >
+              <div
+                class="flex items-center justify-between px-4 py-2.5 border-b border-faint font-mono text-xs"
+              >
+                <span>customers.xlsx</span>
+                <span class="text-muted">1,284 rows</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="sheet w-full font-mono text-[11px] md:text-xs text-left">
+                  <thead>
+                    <tr>
+                      <th class="w-8"></th>
+                      <th>name</th>
+                      <th>city</th>
+                      <th>plan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>1</th>
+                      <td>Northwind Ltd</td>
+                      <td>Madrid</td>
+                      <td>pro</td>
+                    </tr>
+                    <tr>
+                      <th>2</th>
+                      <td>Acme Foods</td>
+                      <td>Lisbon</td>
+                      <td>basic</td>
+                    </tr>
+                    <tr>
+                      <th>3</th>
+                      <td>Hoja Verde</td>
+                      <td>Madrid</td>
+                      <td>pro</td>
+                    </tr>
+                    <tr>
+                      <th>4</th>
+                      <td>Blue Harbour</td>
+                      <td>Porto</td>
+                      <td>pro</td>
+                    </tr>
+                    <tr>
+                      <th>5</th>
+                      <td class="text-muted">…</td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <p
+              class="font-mono text-xs tracking-widest text-accent text-center"
+              aria-hidden="true"
+            >
+              <span class="hidden md:inline">UPLOAD →</span
+              ><span class="md:hidden">↓ UPLOAD</span>
+            </p>
+
+            <div
+              class="term rounded-lg shadow-2xl overflow-hidden font-mono text-[11px] md:text-xs leading-relaxed"
+              role="img"
+              aria-label="A terminal querying GET /data/customers?city=Madrid and receiving the matching rows as JSON"
+            >
+              <div
+                class="flex items-center gap-2 px-4 py-2.5 border-b"
+                style="border-color: #2e2d29"
+              >
+                <span class="w-2.5 h-2.5 rounded-full" style="background: #45443f"></span>
+                <span class="w-2.5 h-2.5 rounded-full" style="background: #45443f"></span>
+                <span class="w-2.5 h-2.5 rounded-full" style="background: #45443f"></span>
+                <span class="ml-3 t-dim">~ curl</span>
+              </div>
+              <div class="p-4 md:p-5 overflow-x-auto whitespace-pre"><p><span class="t-dim">$</span> curl api.example.com/data/customers<span class="t-acc">?city=Madrid</span></p><p class="t-line" style="transition-delay: 0.8s">{</p><p class="t-line" style="transition-delay: 0.9s">  <span class="t-key">"total"</span>: 312, <span class="t-key">"page"</span>: 1, <span class="t-key">"limit"</span>: 20,</p><p class="t-line" style="transition-delay: 1s">  <span class="t-key">"data"</span>: [</p><p class="t-line" style="transition-delay: 1.2s">    { <span class="t-key">"name"</span>: <span class="t-str">"Northwind Ltd"</span>, <span class="t-key">"plan"</span>: <span class="t-str">"pro"</span> },</p><p class="t-line" style="transition-delay: 1.4s">    { <span class="t-key">"name"</span>: <span class="t-str">"Hoja Verde"</span>, <span class="t-key">"plan"</span>: <span class="t-str">"pro"</span> },</p><p class="t-line" style="transition-delay: 1.6s">    <span class="t-dim">…</span></p><p class="t-line" style="transition-delay: 1.7s">  ]</p><p class="t-line" style="transition-delay: 1.8s">}</p><p class="t-line" style="transition-delay: 2.1s"><span class="t-dim">$</span> <span class="cursor">█</span></p></div>
+            </div>
+          </div>
+          <figcaption class="mt-4 font-mono text-xs text-muted">
+            Every file becomes a table, and every table gets its own endpoints.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Problem -->
+    <section id="why" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / WHY
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+            Your data lives in spreadsheets. Your apps need an API.
+          </h2>
+        </div>
+
+        <div
+          class="fade-in space-y-6 text-muted font-light leading-relaxed"
+          style="transition-delay: 0.15s"
+        >
+          <p>
+            The price list, the customer register, the stock count, last
+            year's sales. Every company has data in Excel that a website, an
+            internal tool or an integration needs to read — and turning it
+            into a proper backend usually means a database, a schema, an API
+            and weeks in the development queue.
+          </p>
+          <p>
+            instantDB skips all of that. Drop in the file and you get a table
+            with its columns detected, endpoints to read, filter, insert,
+            update and delete rows, and interactive documentation for whoever
+            has to use it. When the data changes, upload it again.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- How it works -->
+    <section id="how" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / HOW IT WORKS
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+              From file to endpoint in three steps.
+            </h2>
+          </div>
+          <p
+            class="fade-in text-muted font-light leading-relaxed"
+            style="transition-delay: 0.15s"
+          >
+            Everything happens in a web interface: no command line, no SQL.
+            Developers get a standard REST API and an OpenAPI spec; everyone
+            else gets a table they can browse.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-px bg-faint border border-faint">
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="border-top: 2px solid #b45309"
+          >
+            <p class="font-mono text-xs text-muted mb-6">01</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #b45309"
+            >
+              Upload
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Drag a CSV or Excel file onto the page. Pick one sheet or import
+              every sheet as its own dataset. Custom CSV separators are
+              supported.
+            </p>
+          </div>
+
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.1s; border-top: 2px solid #0369a1"
+          >
+            <p class="font-mono text-xs text-muted mb-6">02</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #0369a1"
+            >
+              Get a table
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Columns are detected and named automatically, and every row gets
+              an id. You receive an ownership code that protects the dataset
+              against changes.
+            </p>
+          </div>
+
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.2s; border-top: 2px solid #2d5a27"
+          >
+            <p class="font-mono text-xs text-muted mb-6">03</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #2d5a27"
+            >
+              Use the API
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              The endpoints are live straight away, documented in Swagger UI.
+              Connect your website, app, spreadsheet or automation tool.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- API -->
+    <section id="api" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / API
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug mb-6">
+            A real REST API, not an export.
+          </h2>
+          <p class="text-muted font-light leading-relaxed mb-8">
+            Read and search freely; writing needs the dataset's ownership code,
+            so a public read endpoint never becomes a public write endpoint.
+            Rate limiting is on by default.
+          </p>
+          <dl
+            class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm font-mono"
+          >
+            <dt class="text-accent">GET</dt>
+            <dd class="text-muted">/data/:dataset?column=value&amp;page=2</dd>
+            <dt class="text-accent">GET</dt>
+            <dd class="text-muted">/data/:dataset/:id</dd>
+            <dt class="text-accent">POST</dt>
+            <dd class="text-muted">/data/:dataset</dd>
+            <dt class="text-accent">PUT · PATCH</dt>
+            <dd class="text-muted">/data/:dataset/:id</dd>
+            <dt class="text-accent">DELETE</dt>
+            <dd class="text-muted">/data/:dataset/:id</dd>
+            <dt class="text-accent">GET</dt>
+            <dd class="text-muted">/data/:dataset/stats</dd>
+            <dt class="text-accent">POST</dt>
+            <dd class="text-muted">/data/join</dd>
+          </dl>
+        </div>
+
+        <div
+          class="fade-in term rounded-lg p-5 md:p-6 font-mono text-xs leading-relaxed shadow-xl overflow-x-auto whitespace-pre"
+          style="transition-delay: 0.15s"
+        ><p class="t-dim"># add a customer</p><p><span class="t-dim">$</span> curl -X POST api.example.com/data/customers \</p><p>    -H <span class="t-str">"Content-Type: application/json"</span> \</p><p>    -d <span class="t-str">'{</span></p><p class="t-str">      "ownershipCode": "550e8400-…",</p><p class="t-str">      "data": { "name": "Río Claro",</p><p class="t-str">                "city": "Seville", "plan": "pro" }</p><p class="t-str">    }'</p><p class="mt-4 t-dim"># every webhook for this dataset receives</p><p>{ <span class="t-key">"event"</span>: <span class="t-str">"row.insert"</span>, <span class="t-key">"dataset"</span>: <span class="t-str">"customers"</span>, … }</p><p class="mt-4 t-dim"># the whole spec, for code generators</p><p><span class="t-dim">$</span> curl api.example.com/api-json</p></div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Features -->
+    <section id="features" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / FEATURES
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+              More than CRUD.
+            </h2>
+          </div>
+          <p
+            class="fade-in text-muted font-light leading-relaxed"
+            style="transition-delay: 0.15s"
+          >
+            Once the data is in, instantDB gives you the pieces that usually
+            take another sprint each: combining tables, reacting to changes,
+            collecting new rows and seeing the numbers.
+          </p>
+        </div>
+
+        <ol class="grid sm:grid-cols-2 md:grid-cols-4 gap-12 md:gap-8">
+          <li class="fade-in">
+            <p class="font-mono text-xs text-accent mb-4">JOINS</p>
+            <p class="font-serif text-2xl mb-3">Combine datasets</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              A visual builder to join several tables by their columns, group
+              and order the result, and save it as a named configuration to
+              open again later.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.1s">
+            <p class="font-mono text-xs text-accent mb-4">WEBHOOKS</p>
+            <p class="font-serif text-2xl mb-3">React to changes</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Notify your systems when rows are inserted, updated or deleted,
+              or when a dataset is uploaded. Delivery logs and test sends
+              included.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.2s">
+            <p class="font-mono text-xs text-accent mb-4">FORMS</p>
+            <p class="font-serif text-2xl mb-3">Collect rows</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Build a form for any dataset, choose which fields to show, and
+              share it. Every submission becomes a new row — public or
+              private.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.3s">
+            <p class="font-mono text-xs text-accent mb-4">CHARTS</p>
+            <p class="font-serif text-2xl mb-3">See the numbers</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Chart any dataset or join result, and get column statistics
+              without exporting anything back to Excel.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Details -->
+    <section id="details" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">
+          / DETAILS
+        </p>
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-px bg-faint border border-faint"
+        >
+          <div class="infra-card bg-warm p-8 fade-in">
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Your servers
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              instantDB is installed on your infrastructure. Your data never
+              passes through a third-party cloud.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.1s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              SQLite or Postgres
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              A single SQLite file to start small, or point it at your
+              PostgreSQL when the data grows.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.2s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Documented
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Swagger UI and an OpenAPI spec, ready to generate a typed client
+              in the language your team uses.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.3s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Protected writes
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Changes to rows, webhooks and forms require the dataset's
+              ownership code, and every endpoint is rate limited.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- CTA -->
+    <section id="start" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-end">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / START
+          </p>
+          <h2 class="font-serif text-4xl md:text-5xl leading-tight">
+            Your spreadsheet,<br />an API by lunch.
+          </h2>
+        </div>
+        <div class="fade-in space-y-8" style="transition-delay: 0.15s">
+          <p class="text-muted font-light leading-relaxed">
+            instantDB is licensed to run on your own infrastructure. It's built
+            and maintained by MEPS — tell us what data you need to open up and
+            we'll set it up with you. A public demo is on its way.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a
+              href="/#contact"
+              data-goatcounter-click="instantdb-contact-cta"
+              class="font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+              >TALK TO US →</a
+            >
+            <span
+              class="font-mono text-xs tracking-widest text-muted border border-faint px-5 py-3 cursor-default"
+              >DEMO · SOON</span
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-faint py-8 px-6">
+      <div
+        class="max-w-5xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+      >
+        <a href="/" class="font-mono text-xs text-muted tracking-widest"
+          ><span style="color: #c2410c">M</span
+          ><span style="color: #7c3aed">E</span
+          ><span style="color: #0369a1">P</span
+          ><span style="color: #2d5a27">S</span> · meps.software</a
+        >
+        <span class="font-mono text-xs text-muted"
+          >Excel is a trademark of Microsoft Corporation.</span
+        >
+      </div>
+    </footer>
+
+    <script>
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("visible");
+              observer.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+
+      document
+        .querySelectorAll(".fade-in")
+        .forEach((el) => observer.observe(el));
+      // Sub-nav: highlight the section currently under the header
+      const subnav = document.querySelector(".subnav");
+      const navLinks = [...subnav.querySelectorAll("a")];
+      const navSections = navLinks.map((a) =>
+        document.querySelector(a.getAttribute("href")),
+      );
+      let activeLink = null;
+      const updateSubnav = () => {
+        let current = null;
+        navSections.forEach((s, i) => {
+          if (s.getBoundingClientRect().top <= 120) current = navLinks[i];
+        });
+        // Short last section: mark it once the page can't scroll further
+        if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2)
+          current = navLinks[navLinks.length - 1];
+        if (current === activeLink) return;
+        activeLink?.classList.remove("active");
+        current?.classList.add("active");
+        activeLink = current;
+        if (current) {
+          subnav.scrollTo({
+            left: current.offsetLeft - (subnav.clientWidth - current.offsetWidth) / 2,
+            behavior: "smooth",
+          });
+        }
+      };
+      addEventListener("scroll", updateSubnav, { passive: true });
+      updateSubnav();
+    </script>
+    <script
+      data-goatcounter="https://meps.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"
+    ></script>
+  </body>
+</html>

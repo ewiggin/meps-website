@@ -166,7 +166,7 @@
         border-bottom: 2px solid var(--pc);
       }
       @media (min-width: 768px) {
-        project-card:nth-last-child(2) > * {
+        project-card:nth-last-child(-n + 3) > * {
           border-bottom: 2px solid var(--pc);
         }
       }
@@ -533,7 +533,14 @@
             color="#7c3aed"
           ></project-card>
           <project-card
-            class="md:col-span-2"
+            name="instantDB"
+            href="/es/instantdb/"
+            status="active"
+            label="API"
+            description="Herramienta autoalojada para empresas: sube un CSV o un Excel y obtén en segundos una base de datos con una API REST completa."
+            color="#b45309"
+          ></project-card>
+          <project-card
             name="Más proyectos"
             status="soon"
             label="pronto"
