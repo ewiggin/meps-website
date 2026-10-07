@@ -161,6 +161,15 @@
         display: block;
         height: 100%;
       }
+      /* Close the projects block: bottom line on the last row */
+      project-card:last-child > * {
+        border-bottom: 2px solid var(--pc);
+      }
+      @media (min-width: 768px) {
+        project-card:nth-last-child(2) > * {
+          border-bottom: 2px solid var(--pc);
+        }
+      }
     </style>
   </head>
   <body class="font-sans text-ink antialiased">
