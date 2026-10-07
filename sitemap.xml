@@ -44,6 +44,20 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/coverbook/" />
   </url>
   <url>
+    <loc>https://meps.software/sshh/</loc>
+    <lastmod>2026-10-07</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/sshh/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://meps.software/es/sshh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/sshh/" />
+  </url>
+  <url>
+    <loc>https://meps.software/es/sshh/</loc>
+    <lastmod>2026-10-07</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/sshh/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://meps.software/es/sshh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://meps.software/sshh/" />
+  </url>
+  <url>
     <loc>https://meps.software/privacy/</loc>
     <lastmod>2026-10-01</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://meps.software/privacy/" />

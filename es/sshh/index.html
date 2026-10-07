@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sshh · Gestor de conexiones SSH para la terminal · MEPS</title>
+    <meta
+      name="description"
+      content="Gestor de conexiones SSH de código abierto para la terminal, escrito en Rust. Se usa igual que ssh: guarda tus servidores con etiquetas y notas, y mantiene varias sesiones abiertas una al lado de otra."
+    />
+    <link rel="alternate" hreflang="en" href="/sshh/" />
+    <link rel="icon" href="../../favicon.ico" sizes="32x32" />
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ["DM Serif Display", "Georgia", "serif"],
+              mono: ["DM Mono", "monospace"],
+              sans: ["DM Sans", "system-ui", "sans-serif"],
+            },
+            colors: {
+              ink: "#1a1a18",
+              muted: "#6b6b65",
+              faint: "#e8e6df",
+              warm: "#f5f3ee",
+              accent: "#7c3aed",
+            },
+            letterSpacing: {
+              widest: "0.2em",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: #f5f3ee;
+      }
+
+      .fade-in {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      hr.ruling {
+        border: none;
+        border-top: 1px solid #c8c5bc;
+      }
+
+      .infra-card {
+        transition:
+          background 0.25s ease,
+          transform 0.25s ease;
+      }
+      .infra-card:hover {
+        background: #fff;
+        transform: translateY(-2px);
+      }
+      .infra-card:hover .infra-title {
+        text-shadow: 0 0 40px currentColor;
+      }
+
+      /* Section sub-nav */
+      section[id] {
+        scroll-margin-top: 100px;
+      }
+      .subnav {
+        scrollbar-width: none;
+      }
+      .subnav::-webkit-scrollbar {
+        display: none;
+      }
+      .subnav a.active {
+        color: #7c3aed;
+        border-color: #7c3aed;
+      }
+
+      ::selection {
+        background: #7c3aed;
+        color: #f5f3ee;
+      }
+
+      /* Terminal mock-ups */
+      .term {
+        background: #1a1a18;
+        color: #d6d3c9;
+      }
+      .tui-box {
+        position: relative;
+        border: 1px solid #45443f;
+        border-radius: 6px;
+        padding: 0.9em 0.75em 0.6em;
+      }
+      .tui-box.focus {
+        border-color: #a78bfa;
+      }
+      .tui-title {
+        position: absolute;
+        top: -0.75em;
+        left: 0.6em;
+        padding: 0 0.35em;
+        background: #1a1a18;
+        color: #a8a59b;
+        white-space: nowrap;
+      }
+      .tui-box.focus > .tui-title {
+        color: #c4b5fd;
+      }
+      .t-dim {
+        color: #7d7b72;
+      }
+      .t-on {
+        color: #4ade80;
+      }
+      .t-acc {
+        color: #c4b5fd;
+      }
+      .t-sel {
+        background: #2f2b3d;
+      }
+      .cursor {
+        animation: blink 1s step-end infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* Session lines appear one by one once visible */
+      .t-line {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .visible .t-line {
+        opacity: 1;
+      }
+
+      kbd {
+        font-family: "DM Mono", monospace;
+        font-size: 0.75rem;
+        padding: 0.1rem 0.45rem;
+        border: 1px solid #c8c5bc;
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        background: #fff;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body class="font-sans text-ink antialiased">
+    <!-- Nav -->
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 bg-warm/80 backdrop-blur-sm border-b border-faint"
+    >
+      <div
+        class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between"
+      >
+        <span class="font-mono text-sm tracking-widest font-light">
+          <a href="/es/"
+            ><span style="color: #c2410c">M</span
+            ><span style="color: #7c3aed">E</span
+            ><span style="color: #0369a1">P</span
+            ><span style="color: #2d5a27">S</span></a
+          ><span class="text-muted"> / </span
+          ><span class="text-accent">SSHH</span>
+        </span>
+        <a
+          href="/sshh/"
+          hreflang="en"
+          class="font-mono text-xs tracking-widest text-muted hover:text-accent transition-colors"
+          >EN</a
+        >
+      </div>
+      <div class="border-t border-faint">
+        <div
+          class="subnav max-w-5xl mx-auto px-6 flex gap-6 overflow-x-auto font-mono text-xs tracking-widest text-muted uppercase"
+        >
+          <a
+            href="#why"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Por qué</a
+          >
+          <a
+            href="#wrapper"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Como ssh</a
+          >
+          <a
+            href="#tui"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Sesiones</a
+          >
+          <a
+            href="#keys"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Teclado</a
+          >
+          <a
+            href="#details"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Detalles</a
+          >
+          <a
+            href="#install"
+            class="shrink-0 py-3 border-b border-transparent hover:text-accent transition-colors"
+            >Instalar</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="min-h-screen flex flex-col justify-center px-6 pt-32 pb-16">
+      <div class="max-w-5xl mx-auto w-full">
+        <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-end mb-14">
+          <div>
+            <p
+              class="font-mono text-xs tracking-widest text-muted mb-8 fade-in"
+            >
+              / PRODUCTO · CÓDIGO ABIERTO · RUST
+            </p>
+            <h1
+              class="font-serif text-5xl md:text-7xl leading-none fade-in"
+              style="transition-delay: 0.1s"
+            >
+              ssh<span class="text-accent">h</span><span class="text-muted"
+                >.</span
+              >
+            </h1>
+          </div>
+          <div class="fade-in" style="transition-delay: 0.2s">
+            <p
+              class="text-base md:text-lg text-muted font-light leading-relaxed"
+            >
+              Un gestor de conexiones SSH para la terminal. Se usa igual que
+              <code class="font-mono text-ink">ssh</code>: recuerda tus
+              servidores y mantiene sus sesiones abiertas una al lado de otra.
+            </p>
+            <div class="mt-8 flex flex-wrap items-center gap-6">
+              <a
+                href="#install"
+                class="font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+                >INSTALAR →</a
+              >
+              <a
+                href="https://github.com/ewiggin/sshh"
+                data-goatcounter-click="sshh-github-hero"
+                target="_blank"
+                rel="noopener"
+                class="font-mono text-xs tracking-widest text-accent border border-accent px-5 py-3 hover:bg-accent hover:text-warm transition-colors"
+                >GITHUB ↗</a
+              >
+            </div>
+            <p class="mt-6 font-mono text-xs text-muted">
+              Linux · MIT / Apache-2.0 · No guarda contraseñas
+            </p>
+          </div>
+        </div>
+
+        <!-- TUI mock-up -->
+        <figure class="fade-in" style="transition-delay: 0.3s">
+          <div
+            class="term rounded-lg shadow-2xl overflow-hidden font-mono text-[11px] md:text-xs leading-relaxed"
+            role="img"
+            aria-label="Interfaz de sshh en la terminal: lista de conexiones a la izquierda y dos sesiones ssh abiertas en columnas a la derecha"
+          >
+            <div
+              class="flex items-center gap-2 px-4 py-2.5 border-b"
+              style="border-color: #2e2d29"
+            >
+              <span class="w-2.5 h-2.5 rounded-full" style="background: #45443f"></span>
+              <span class="w-2.5 h-2.5 rounded-full" style="background: #45443f"></span>
+              <span class="w-2.5 h-2.5 rounded-full" style="background: #45443f"></span>
+              <span class="ml-3 t-dim">~ sshh</span>
+            </div>
+
+            <div class="p-3 md:p-4 pt-5 md:pt-6 grid grid-cols-1 sm:grid-cols-12 gap-x-3 gap-y-5">
+              <!-- Left: search, list, details -->
+              <div class="sm:col-span-5 lg:col-span-4 flex flex-col gap-5">
+                <div class="tui-box">
+                  <span class="tui-title">Search</span>
+                  <span class="t-acc">#prod</span><span class="t-dim"> web</span>
+                </div>
+                <div class="tui-box">
+                  <span class="tui-title"
+                    ><span class="t-acc">Connections</span>
+                    <span class="t-dim">· Etiquetas</span></span
+                  >
+                  <div class="t-sel -mx-1 px-1 flex gap-2">
+                    <span class="t-on">●</span><span class="w-14 text-white">web</span
+                    ><span class="truncate">Web producción</span>
+                  </div>
+                  <div class="flex gap-2 px-0">
+                    <span class="t-on">●</span><span class="w-14">db1</span
+                    ><span class="truncate t-dim">Postgres principal</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="t-dim">○</span><span class="w-14">bastion</span
+                    ><span class="truncate t-dim">Bastión</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="invisible">○</span><span class="w-14">api</span
+                    ><span class="truncate t-dim">Workers de la API</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="invisible">○</span><span class="w-14">backup</span
+                    ><span class="truncate t-dim">Copias externas</span>
+                  </div>
+                </div>
+                <div class="tui-box hidden sm:block">
+                  <span class="tui-title">Detalles</span>
+                  <p class="text-white">Web producción</p>
+                  <p><span class="t-dim">destino</span> deploy@10.0.0.5:2222</p>
+                  <p><span class="t-dim">salto&nbsp;</span> bastion</p>
+                  <p><span class="t-dim">tags&nbsp;&nbsp;&nbsp;</span> <span class="t-acc">#prod #web</span></p>
+                  <p class="mt-2 t-dim">notas</p>
+                  <p class="truncate">sudo systemctl restart nginx</p>
+                </div>
+              </div>
+
+              <!-- Session column 1 -->
+              <div class="sm:col-span-7 lg:col-span-4 tui-box focus min-h-[16rem]">
+                <span class="tui-title">1 <span class="t-on">●</span> web</span>
+                <p class="t-line" style="transition-delay: 0.8s">
+                  <span class="t-on">deploy@web</span>:~$ uptime
+                </p>
+                <p class="t-line" style="transition-delay: 1.1s">
+                  &nbsp;12:01 up 3 days, load 0.08
+                </p>
+                <p class="t-line" style="transition-delay: 1.6s">
+                  <span class="t-on">deploy@web</span>:~$ systemctl is-active nginx
+                </p>
+                <p class="t-line" style="transition-delay: 1.9s">active</p>
+                <p class="t-line" style="transition-delay: 2.3s">
+                  <span class="t-on">deploy@web</span>:~$ <span class="cursor">█</span>
+                </p>
+              </div>
+
+              <!-- Session column 2 -->
+              <div class="hidden lg:block lg:col-span-4 tui-box">
+                <span class="tui-title">2 <span class="t-on">●</span> db1</span>
+                <p class="t-line" style="transition-delay: 1.2s">
+                  <span class="t-on">postgres@db1</span>:~$ psql
+                </p>
+                <p class="t-line" style="transition-delay: 1.5s">psql (16.2)</p>
+                <p class="t-line" style="transition-delay: 2s">
+                  postgres=# select count(*) from orders;
+                </p>
+                <p class="t-line" style="transition-delay: 2.3s">&nbsp;count</p>
+                <p class="t-line" style="transition-delay: 2.3s">-------</p>
+                <p class="t-line" style="transition-delay: 2.3s">&nbsp;18422</p>
+                <p class="t-line" style="transition-delay: 2.6s">postgres=#</p>
+              </div>
+            </div>
+
+            <div
+              class="px-4 py-2 border-t t-dim truncate"
+              style="border-color: #2e2d29"
+            >
+              <span class="t-acc">Space</span> abrir ·
+              <span class="t-acc">Alt-v</span> nueva columna ·
+              <span class="t-acc">Alt-h/l</span> foco ·
+              <span class="t-acc">/</span> buscar ·
+              <span class="t-acc">?</span> ayuda
+            </div>
+          </div>
+          <figcaption class="mt-4 font-mono text-xs text-muted">
+            Las conexiones a la izquierda; cada columna es el
+            <code>ssh</code> del sistema en su propia terminal.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Problem -->
+    <section id="why" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / POR QUÉ
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+            Treinta servidores, un fichero de configuración y una pestaña para cada uno.
+          </h2>
+        </div>
+
+        <div
+          class="fade-in space-y-6 text-muted font-light leading-relaxed"
+          style="transition-delay: 0.15s"
+        >
+          <p>
+            ¿Qué IP tenía staging? ¿Qué puerto usa el servidor de copias, y
+            pasa por el bastión? Las respuestas acaban repartidas entre el
+            historial de la shell, un <code class="font-mono text-ink">~/.ssh/config</code>
+            sin notas y una docena de pestañas abiertas.
+          </p>
+          <p>
+            sshh guarda tus conexiones en una lista en la que puedes buscar,
+            con nombre, etiquetas y notas para cada una, y abre sus sesiones una
+            junto a otra en una sola ventana. No reimplementa SSH: siempre
+            ejecuta el <code class="font-mono text-ink">ssh</code> del sistema,
+            así que tu configuración, tu agente, <code class="font-mono text-ink">ProxyJump</code>,
+            <code class="font-mono text-ink">ControlMaster</code>,
+            <code class="font-mono text-ink">known_hosts</code> y las llaves
+            FIDO siguen funcionando como hoy.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Wrapper mode -->
+    <section id="wrapper" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-center mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / IGUAL QUE SSH
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug mb-6">
+              Escribe ssh como siempre. Añade una h.
+            </h2>
+            <p class="text-muted font-light leading-relaxed">
+              <code class="font-mono text-ink">sshh</code> acepta exactamente los
+              mismos argumentos que <code class="font-mono text-ink">ssh</code>.
+              La primera vez que te conectas a un sitio nuevo, un pequeño
+              formulario te ofrece guardarlo, ya relleno con lo que usaría el
+              propio ssh. A partir de ahí, basta con el alias.
+            </p>
+          </div>
+
+          <div
+            class="fade-in term rounded-lg p-5 md:p-6 font-mono text-xs leading-relaxed shadow-xl"
+            style="transition-delay: 0.15s"
+          >
+            <p>
+              <span class="t-dim">$</span> sshh -p 2222 deploy@web.example.com
+            </p>
+            <div class="tui-box focus mt-5">
+              <span class="tui-title">Nueva conexión</span>
+              <div class="grid grid-cols-[6rem_1fr] gap-y-1">
+                <span class="t-dim">Alias</span><span class="text-white">web</span>
+                <span class="t-dim">Host</span><span>web.example.com</span>
+                <span class="t-dim">Usuario</span><span>deploy</span>
+                <span class="t-dim">Puerto</span><span>2222</span>
+                <span class="t-dim">Etiquetas</span
+                ><span class="t-acc">prod, web<span class="cursor">▏</span></span>
+              </div>
+              <p class="mt-4 t-dim">
+                <span class="t-acc">Enter</span> guardar y conectar ·
+                <span class="t-acc">Esc</span> solo conectar
+              </p>
+            </div>
+            <p class="mt-5 t-dim"># la próxima vez</p>
+            <p><span class="t-dim">$</span> sshh web</p>
+            <p><span class="t-dim">$</span> sshh web uptime</p>
+            <p><span class="t-dim">$</span> sshh -L 8080:localhost:80 web</p>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-px bg-faint border border-faint">
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="border-top: 2px solid #7c3aed"
+          >
+            <p class="font-mono text-xs text-muted mb-6">01</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #7c3aed"
+            >
+              Tus opciones mandan
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Con un alias guardado, sshh solo rellena host, usuario, puerto,
+              llave o salto si no los has indicado tú. Lo que no entiende pasa
+              a ssh sin tocarlo.
+            </p>
+          </div>
+
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.1s; border-top: 2px solid #0369a1"
+          >
+            <p class="font-mono text-xs text-muted mb-6">02</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #0369a1"
+            >
+              Nunca estorba
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Si algo suyo falla, sshh avisa y ejecuta ssh con tus argumentos
+              originales. El formulario solo aparece en terminales
+              interactivas, así que los scripts no se enteran.
+            </p>
+          </div>
+
+          <div
+            class="infra-card bg-warm p-8 fade-in flex flex-col"
+            style="transition-delay: 0.2s; border-top: 2px solid #2d5a27"
+          >
+            <p class="font-mono text-xs text-muted mb-6">03</p>
+            <p
+              class="font-serif text-2xl mb-4 infra-title"
+              style="color: #2d5a27"
+            >
+              Seguro como alias
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Añade <code class="font-mono text-ink">alias ssh=sshh</code> a tu
+              shell y sigue escribiendo lo de siempre. Con
+              <code class="font-mono text-ink">sshh ssh-config sync</code>, scp,
+              rsync y git también conocen tus alias.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- TUI -->
+    <section id="tui" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-start mb-16">
+          <div class="fade-in">
+            <p class="font-mono text-xs tracking-widest text-muted mb-8">
+              / SESIONES
+            </p>
+            <h2 class="font-serif text-3xl md:text-4xl leading-snug">
+              Tus servidores a la izquierda. Sus shells, una al lado de otra.
+            </h2>
+          </div>
+          <p
+            class="fade-in text-muted font-light leading-relaxed"
+            style="transition-delay: 0.15s"
+          >
+            Ejecuta <code class="font-mono text-ink">sshh</code> sin argumentos
+            y tendrás una interfaz al estilo de lazygit: la lista de conexiones
+            con sus detalles y tantas columnas de terminal como quepan en
+            pantalla, cada una una sesión viva entre las que saltas sin
+            cerrarlas.
+          </p>
+        </div>
+
+        <ol class="grid md:grid-cols-4 gap-12 md:gap-8">
+          <li class="fade-in">
+            <p class="font-mono text-xs text-accent mb-4">BUSCAR</p>
+            <p class="font-serif text-2xl mb-3">Búsqueda difusa</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Por alias, nombre, usuario, host, descripción y etiquetas. Filtra
+              con <code class="font-mono text-ink">#prod</code> o combina
+              <code class="font-mono text-ink">#prod #db</code>.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.1s">
+            <p class="font-mono text-xs text-accent mb-4">DIVIDIR</p>
+            <p class="font-serif text-2xl mb-3">Columnas y paneles</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Hasta nueve columnas, y paneles apilados dentro como en tmux.
+              Reordénalos o pon uno a pantalla completa.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.2s">
+            <p class="font-mono text-xs text-accent mb-4">SSH DE VERDAD</p>
+            <p class="font-serif text-2xl mb-3">Una terminal real</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Cada sesión es ssh en su propia pseudoterminal: contraseñas,
+              avisos de host key, vim, htop, el ratón y 5000 líneas de
+              historial.
+            </p>
+          </li>
+          <li class="fade-in" style="transition-delay: 0.3s">
+            <p class="font-mono text-xs text-accent mb-4">FICHEROS</p>
+            <p class="font-serif text-2xl mb-3">sftp al lado</p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Pulsa <kbd>s</kbd> para abrir sftp del mismo servidor en la
+              columna de al lado, mientras su sesión ssh sigue abierta.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Keyboard -->
+    <section id="keys" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / TECLADO
+          </p>
+          <h2 class="font-serif text-3xl md:text-4xl leading-snug mb-6">
+            Atajos que tus dedos ya conocen.
+          </h2>
+          <p class="text-muted font-light leading-relaxed">
+            Siguen las convenciones de vim, less, lazygit y fzf. Cuando una
+            sesión tiene el foco, todas las teclas van a ella — solo los atajos
+            con <kbd>Alt</kbd> se quedan en sshh. Y todo funciona también con
+            el ratón.
+          </p>
+        </div>
+
+        <div
+          class="fade-in bg-white border border-faint p-6 md:p-8"
+          style="transition-delay: 0.15s"
+        >
+          <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
+            <dt><kbd>j</kbd> <kbd>k</kbd></dt>
+            <dd class="text-muted font-light">moverse por la lista</dd>
+            <dt><kbd>/</kbd></dt>
+            <dd class="text-muted font-light">buscar</dd>
+            <dt><kbd>Space</kbd></dt>
+            <dd class="text-muted font-light">abrir la sesión en el panel activo</dd>
+            <dt><kbd>Alt-v</kbd></dt>
+            <dd class="text-muted font-light">abrirla en una columna nueva</dd>
+            <dt><kbd>Alt-h</kbd> <kbd>Alt-l</kbd></dt>
+            <dd class="text-muted font-light">mover el foco entre columnas</dd>
+            <dt><kbd>Alt-f</kbd></dt>
+            <dd class="text-muted font-light">panel a pantalla completa</dd>
+            <dt><kbd>Alt-s</kbd></dt>
+            <dd class="text-muted font-light">recorrer, buscar y copiar el historial</dd>
+            <dt><kbd>yy</kbd></dt>
+            <dd class="text-muted font-light">copiar el comando ssh equivalente</dd>
+            <dt><kbd>c</kbd></dt>
+            <dd class="text-muted font-light">instalar tu clave pública (ssh-copy-id)</dd>
+            <dt><kbd>?</kbd></dt>
+            <dd class="text-muted font-light">todos los atajos</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Details -->
+    <section id="details" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto">
+        <p class="font-mono text-xs tracking-widest text-muted mb-16 fade-in">
+          / DETALLES
+        </p>
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-px bg-faint border border-faint"
+        >
+          <div class="infra-card bg-warm p-8 fade-in">
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Sin secretos
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              sshh nunca guarda contraseñas. Sigue usando tus llaves y tu
+              agente como siempre.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.1s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Importa tu config
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              <code class="font-mono text-ink">sshh import-ssh-config</code>
+              convierte tus bloques <code class="font-mono text-ink">Host</code>
+              en conexiones, siguiendo los <code class="font-mono text-ink">Include</code>.
+              Pruébalo con <code class="font-mono text-ink">--dry-run</code>.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.2s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Para scripts
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              <code class="font-mono text-ink">ls</code>,
+              <code class="font-mono text-ink">add</code>,
+              <code class="font-mono text-ink">rm</code>,
+              <code class="font-mono text-ink">history</code> y exportar /
+              importar en JSON para compartir conexiones con tu equipo.
+            </p>
+          </div>
+          <div
+            class="infra-card bg-warm p-8 fade-in"
+            style="transition-delay: 0.3s"
+          >
+            <p class="font-serif text-2xl mb-4 infra-title text-accent">
+              Tu tema
+            </p>
+            <p class="text-sm text-muted font-light leading-relaxed">
+              Solo usa la paleta de 16 colores de tu terminal, así que encaja
+              con el resto de tu entorno.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="ruling max-w-5xl mx-auto px-6" />
+
+    <!-- Install -->
+    <section id="install" class="py-24 px-6">
+      <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-end">
+        <div class="fade-in">
+          <p class="font-mono text-xs tracking-widest text-muted mb-8">
+            / INSTALAR
+          </p>
+          <h2 class="font-serif text-4xl md:text-5xl leading-tight">
+            Una línea.<br />Sin sudo.
+          </h2>
+        </div>
+        <div class="fade-in space-y-8" style="transition-delay: 0.15s">
+          <div
+            class="term rounded-lg font-mono text-xs flex items-center gap-3 pl-5 pr-2 py-2"
+          >
+            <code class="flex-1 overflow-x-auto whitespace-nowrap py-2"
+              ><span class="t-dim">$ </span><span id="install-cmd"
+                >curl -fsSL https://raw.githubusercontent.com/ewiggin/sshh/main/install.sh | sh</span
+              ></code
+            >
+            <button
+              type="button"
+              id="copy-install"
+              class="shrink-0 tracking-widest t-acc border px-3 py-2 hover:bg-accent hover:text-warm transition-colors"
+              style="border-color: #45443f"
+            >
+              COPIAR
+            </button>
+          </div>
+          <p class="text-muted font-light leading-relaxed">
+            En Linux x86_64 y aarch64 descarga el binario estático, comprueba
+            su SHA-256 y lo instala con su página man en
+            <code class="font-mono text-ink">~/.local/bin</code>. En otros
+            sistemas lo compila desde el código. Vuelve a ejecutarlo para
+            actualizar. sshh lo hace MEPS — si necesitas algo parecido para tu
+            equipo,
+            <a
+              href="/es/#contact"
+              class="text-ink border-b border-ink hover:text-accent hover:border-accent transition-colors"
+              >escríbenos</a
+            >.
+          </p>
+          <a
+            href="https://github.com/ewiggin/sshh"
+            data-goatcounter-click="sshh-github-cta"
+            target="_blank"
+            rel="noopener"
+            class="inline-block font-mono text-xs tracking-widest text-warm bg-accent border border-accent px-5 py-3 hover:bg-ink hover:border-ink transition-colors"
+            >VER EN GITHUB ↗</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-faint py-8 px-6">
+      <div
+        class="max-w-5xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+      >
+        <a href="/es/" class="font-mono text-xs text-muted tracking-widest"
+          ><span style="color: #c2410c">M</span
+          ><span style="color: #7c3aed">E</span
+          ><span style="color: #0369a1">P</span
+          ><span style="color: #2d5a27">S</span> · meps.software</a
+        >
+        <span class="font-mono text-xs text-muted"
+          >sshh es código abierto bajo MIT o Apache-2.0.</span
+        >
+      </div>
+    </footer>
+
+    <script>
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("visible");
+              observer.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+
+      document
+        .querySelectorAll(".fade-in")
+        .forEach((el) => observer.observe(el));
+      // Sub-nav: highlight the section currently under the header
+      const subnav = document.querySelector(".subnav");
+      const navLinks = [...subnav.querySelectorAll("a")];
+      const navSections = navLinks.map((a) =>
+        document.querySelector(a.getAttribute("href")),
+      );
+      let activeLink = null;
+      const updateSubnav = () => {
+        let current = null;
+        navSections.forEach((s, i) => {
+          if (s.getBoundingClientRect().top <= 120) current = navLinks[i];
+        });
+        // Short last section: mark it once the page can't scroll further
+        if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2)
+          current = navLinks[navLinks.length - 1];
+        if (current === activeLink) return;
+        activeLink?.classList.remove("active");
+        current?.classList.add("active");
+        activeLink = current;
+        if (current) {
+          subnav.scrollTo({
+            left: current.offsetLeft - (subnav.clientWidth - current.offsetWidth) / 2,
+            behavior: "smooth",
+          });
+        }
+      };
+      addEventListener("scroll", updateSubnav, { passive: true });
+      updateSubnav();
+
+      // Copy the install command
+      const copyBtn = document.getElementById("copy-install");
+      copyBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(
+            document.getElementById("install-cmd").textContent,
+          );
+          copyBtn.textContent = "COPIADO";
+          window.goatcounter?.count({ path: "sshh-install-copy", title: "sshh install command copied", event: true });
+        } catch {
+          copyBtn.textContent = "SELECCIÓNALO";
+        }
+        setTimeout(() => (copyBtn.textContent = "COPIAR"), 2000);
+      });
+    </script>
+    <script
+      data-goatcounter="https://meps.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"
+    ></script>
+  </body>
+</html>
